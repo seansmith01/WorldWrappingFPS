@@ -142,7 +142,7 @@ public class PlayerShooting : MonoBehaviour
     {
         LineRenderer shootLineRender = Instantiate(shootLineRenderer);
         shootLineRender.transform.parent = transform;
-        StartCoroutine(DestroyLineRenderer(shootLineRender, 5f)); // destroy after x secs
+        StartCoroutine(DestroyLineRenderer(shootLineRender, 2f)); // destroy after x secs
         
 
         shootLineRender.endWidth = 0.1f;
@@ -159,7 +159,7 @@ public class PlayerShooting : MonoBehaviour
         {
             LineRenderer dupShootLineRender = Instantiate(shootLineRenderer);
             dupShootLineRender.transform.parent = transform;
-            StartCoroutine(DestroyLineRenderer(dupShootLineRender, 5f)); // destroy after x secs
+            StartCoroutine(DestroyLineRenderer(dupShootLineRender, 2f)); // destroy after x secs
         
         
             dupShootLineRender.endWidth = 0.1f;
@@ -174,37 +174,37 @@ public class PlayerShooting : MonoBehaviour
     void CheckHit(RaycastHit hit)
     {
         //body shot
-        if (hit.collider.GetComponent<PlayerLocalManager>() != null)
-        {
-            if (hit.collider.GetComponent<PlayerLocalManager>().PlayerNumber != playerNumber)
-            {
-                FindObjectOfType<GameManager>().UpdateScore(playerNumber);
-            }
-        }
-        //headshot
-        if (hit.collider.GetComponentInParent<PlayerLocalManager>() != null)
-        {
-            if (hit.collider.GetComponentInParent<PlayerLocalManager>().PlayerNumber != playerNumber)
-            {
-                FindObjectOfType<GameManager>().UpdateScore(playerNumber);
-            }
-        }
-        //dupshot body
-        if (hit.collider.GetComponent<DuplicateController>() != null)
-        {
-            if (hit.collider.GetComponent<DuplicateController>().PlayerNumber != playerNumber)
-            {
-                FindObjectOfType<GameManager>().UpdateScore(playerNumber);
-            }
-        }
-        //hed dup
-        if (hit.collider.GetComponentInParent<DuplicateController>() != null)
-        {
-            if (hit.collider.GetComponentInParent<DuplicateController>().PlayerNumber != playerNumber)
-            {
-                FindObjectOfType<GameManager>().UpdateScore(playerNumber);
-            }
-        }
+        //if (hit.collider.GetComponent<PlayerLocalManager>() != null)
+        //{
+        //    if (hit.collider.GetComponent<PlayerLocalManager>().PlayerNumber != playerNumber)
+        //    {
+        //        FindObjectOfType<GameManager>().UpdateScore(playerNumber);
+        //    }
+        //}
+        ////headshot
+        //if (hit.collider.GetComponentInParent<PlayerLocalManager>() != null)
+        //{
+        //    if (hit.collider.GetComponentInParent<PlayerLocalManager>().PlayerNumber != playerNumber)
+        //    {
+        //        FindObjectOfType<GameManager>().UpdateScore(playerNumber);
+        //    }
+        //}
+        ////dupshot body
+        //if (hit.collider.GetComponent<DuplicateController>() != null)
+        //{
+        //    if (hit.collider.GetComponent<DuplicateController>().PlayerNumber != playerNumber)
+        //    {
+        //        FindObjectOfType<GameManager>().UpdateScore(playerNumber);
+        //    }
+        //}
+        ////hed dup
+        //if (hit.collider.GetComponentInParent<DuplicateController>() != null)
+        //{
+        //    if (hit.collider.GetComponentInParent<DuplicateController>().PlayerNumber != playerNumber)
+        //    {
+        //        FindObjectOfType<GameManager>().UpdateScore(playerNumber);
+        //    }
+        //}
 
     }
     void GetRaycastHit()

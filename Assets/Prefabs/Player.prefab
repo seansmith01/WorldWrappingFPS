@@ -797,7 +797,7 @@ MonoBehaviour:
       m_Calls: []
     m_ActionId: 9ae2e01e-aed7-412c-ad38-951a2d0e2e8c
     m_ActionName: 'Player/LowerSense[/Keyboard/p]'
-  m_NeverAutoSwitchControlSchemes: 0
+  m_NeverAutoSwitchControlSchemes: 1
   m_DefaultControlScheme: Gamepad
   m_DefaultActionMap: Player
   m_SplitScreenIndex: -1
