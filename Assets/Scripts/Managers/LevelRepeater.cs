@@ -5,6 +5,7 @@ using UnityEngine.SceneManagement;
 
 public class LevelRepeater : MonoBehaviour
 {
+    [SerializeField] bool doGPUInstancing;
     [SerializeField] bool frustrumCulling;
     GameObject level;
     public float repeatAmount;
@@ -42,6 +43,13 @@ public class LevelRepeater : MonoBehaviour
                         foreach (Collider c in levelClone.GetComponentsInChildren<Collider>())
                         {
                             c.enabled = false;
+                        }
+                    }
+                    if (doGPUInstancing)
+                    {
+                        foreach (Renderer rend in levelClone.GetComponentsInChildren<Renderer>())
+                        {
+                            rend.sharedMaterial.enableInstancing = true;
                         }
                     }
                     

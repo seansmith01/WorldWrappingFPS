@@ -41,8 +41,8 @@ public class CameraController : MonoBehaviour
     private void Update()
     {
         if(playerInput.actions["LowerSense"].WasPressedThisFrame()){
-            sensX = 4;
-            sensY = 4;
+            sensX = 7;
+            sensY = 7;
         }
 
     }
