@@ -299,7 +299,7 @@ public class PlayerShooting : MonoBehaviour
 
     private static void KillOtherPlayer(PlayerShooting hitPlayer)
     {
-        //hitPlayer.transform.position = Vector3.zero;
+        hitPlayer.transform.position = Vector3.zero;
     }
 
     
