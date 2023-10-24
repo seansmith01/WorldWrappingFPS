@@ -8,9 +8,10 @@ public class LevelRepeater : MonoBehaviour
     [SerializeField] bool doGPUInstancing;
     [SerializeField] bool frustrumCulling;
     GameObject level;
-    public float repeatAmount;
-    public float repeatSpacing;
-    [SerializeField] float fogMultiplier;
+    public float RepeatAmount;
+    public float RepeatSpacing;
+    [SerializeField] private float startDistanceMultiplier;
+    [SerializeField] private float endDistanceMultiplier;
     // Start is called before the first frame update
     void Awake()
     {
@@ -26,11 +27,11 @@ public class LevelRepeater : MonoBehaviour
         }
 
 
-        for (float x = -repeatSpacing * repeatAmount; x <= repeatAmount * repeatSpacing; x += repeatSpacing)
+        for (float x = -RepeatSpacing * RepeatAmount; x <= RepeatAmount * RepeatSpacing; x += RepeatSpacing)
         {
-            for (float y = -repeatSpacing * repeatAmount; y <= repeatAmount * repeatSpacing; y += repeatSpacing)
+            for (float y = -RepeatSpacing * RepeatAmount; y <= RepeatAmount * RepeatSpacing; y += RepeatSpacing)
             {
-                for (float z = -repeatSpacing * repeatAmount; z <= repeatAmount * repeatSpacing; z += repeatSpacing)
+                for (float z = -RepeatSpacing * RepeatAmount; z <= RepeatAmount * RepeatSpacing; z += RepeatSpacing)
                 {
                     GameObject levelClone = Instantiate(level, new Vector3(x, y, z), Quaternion.identity);
 
@@ -42,7 +43,7 @@ public class LevelRepeater : MonoBehaviour
                     {
                         foreach (Collider c in levelClone.GetComponentsInChildren<Collider>())
                         {
-                            c.enabled = false;
+                            //c.enabled = false;
                         }
                     }
                     if (doGPUInstancing)
@@ -67,15 +68,17 @@ public class LevelRepeater : MonoBehaviour
             }
         }
         level.SetActive(false);
-       // transform.eulerAngles = new Vector3(0, 0, 45);
+        // transform.eulerAngles = new Vector3(0, 0, 45);
+
+        RenderSettings.fogStartDistance = RepeatSpacing * startDistanceMultiplier;
+        RenderSettings.fogEndDistance = RepeatSpacing * endDistanceMultiplier;
     }
-    [SerializeField] private float startDistanceMultiplier;
-    [SerializeField] private float endDistanceMultiplier;
+
     private void Update()
     {
-        RenderSettings.fogStartDistance = repeatSpacing * startDistanceMultiplier;
-        RenderSettings.fogEndDistance = repeatSpacing * endDistanceMultiplier;
-        
+        //RenderSettings.fogStartDistance = RepeatSpacing * startDistanceMultiplier;
+        //RenderSettings.fogEndDistance = RepeatSpacing * endDistanceMultiplier;
+
 
         //RenderSettings.fogDensity = repeatSpacing * (fogMultiplier * 0.01f);
         if (Input.GetKeyDown(KeyCode.R))

@@ -15,9 +15,9 @@ public class BulletProjectileScript : MonoBehaviour
 
         
         Destroy(gameObject, timeTillDestory);
-        float repeatSpacing = levelRepeater.repeatSpacing;
+        float repeatSpacing = levelRepeater.RepeatSpacing;
         //float repeatAmount = levelRepeater.repeatAmount - 1; // one less of the worl repeats
-        float repeatAmount = levelRepeater.repeatAmount; // one less of the worl repeats
+        float repeatAmount = levelRepeater.RepeatAmount; // one less of the worl repeats
         //spawn dups
         for (float x = -repeatSpacing * repeatAmount; x <= repeatAmount * repeatSpacing; x += repeatSpacing)
         {
@@ -48,7 +48,7 @@ public class BulletProjectileScript : MonoBehaviour
     }
     void WrapCheck()
     {
-        float boundsMax = levelRepeater.repeatSpacing / 2f;
+        float boundsMax = levelRepeater.RepeatSpacing / 2f;
         if (transform.position.x > boundsMax)
         {
             WrapTo(new Vector3(-boundsMax, transform.position.y, transform.position.z));

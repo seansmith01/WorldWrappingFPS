@@ -360,7 +360,7 @@ public class PlayerMovement : MonoBehaviour
     
     void WrapCheck()
     {
-        float boundsMax = levelRepeater.repeatSpacing / 2f;
+        float boundsMax = levelRepeater.RepeatSpacing / 2f;
         if (transform.position.x > boundsMax)
         {
             WrapTo(new Vector3(-boundsMax, transform.position.y, transform.position.z));

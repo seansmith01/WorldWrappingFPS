@@ -20,8 +20,8 @@ public class PlayerDuplicateManager : MonoBehaviour
         duplicatesHolder = Instantiate(new GameObject("DuplicatesHolder"));
 
         LevelRepeater levelRepeater = FindFirstObjectByType<LevelRepeater>();
-        float repeatSpacing = levelRepeater.repeatSpacing;
-        float repeatAmount = levelRepeater.repeatAmount - 1; // one less of the worl repeats
+        float repeatSpacing = levelRepeater.RepeatSpacing;
+        float repeatAmount = levelRepeater.RepeatAmount - 1; // one less of the worl repeats
         //spawn dups
         for (float x = -repeatSpacing * repeatAmount; x <= repeatAmount * repeatSpacing; x += repeatSpacing)
         {

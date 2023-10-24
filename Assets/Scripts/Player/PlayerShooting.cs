@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.HID;
 using UnityEngine.UI;
+using UnityEngine.UIElements;
 
 public class PlayerShooting : MonoBehaviour
 {
@@ -178,7 +179,7 @@ public class PlayerShooting : MonoBehaviour
         {
             if (hit.collider.GetComponent<PlayerLocalManager>().PlayerNumber != playerNumber)
             {
-                FindObjectOfType<GameManager>().UpdateScore(playerNumber);
+                //FindObjectOfType<GameManager>().UpdateScore(playerNumber);
             }
         }
         //headshot
@@ -186,7 +187,7 @@ public class PlayerShooting : MonoBehaviour
         {
             if (hit.collider.GetComponentInParent<PlayerLocalManager>().PlayerNumber != playerNumber)
             {
-                FindObjectOfType<GameManager>().UpdateScore(playerNumber);
+                //FindObjectOfType<GameManager>().UpdateScore(playerNumber);
             }
         }
         //dupshot body
@@ -194,7 +195,7 @@ public class PlayerShooting : MonoBehaviour
         {
             if (hit.collider.GetComponent<DuplicateController>().PlayerNumber != playerNumber)
             {
-                FindObjectOfType<GameManager>().UpdateScore(playerNumber);
+                //FindObjectOfType<GameManager>().UpdateScore(playerNumber);
             }
         }
         //hed dup
@@ -202,17 +203,28 @@ public class PlayerShooting : MonoBehaviour
         {
             if (hit.collider.GetComponentInParent<DuplicateController>().PlayerNumber != playerNumber)
             {
-                FindObjectOfType<GameManager>().UpdateScore(playerNumber);
+                //FindObjectOfType<GameManager>().UpdateScore(playerNumber);
             }
         }
 
     }
+    private float diagonalDistance;
     void GetRaycastHit()
     {
-       // bool playerHitSomething = false;
-       // bool duphitSomething = false;
+        // bool playerHitSomething = false;
+        // bool duphitSomething = false;
         //bool hasHitPlayer = false;
         //hitFromDuplicate = false;
+
+        //diagonalDistance = Mathf.Sqrt(gunRange * gunRange + gunRange * gunRange);
+
+        //// Calculate the direction based on the angle in degrees.
+        //float radians = transform.eulerAngles.y * Mathf.Deg2Rad;
+        //Vector3 direction = new Vector3(Mathf.Cos(radians), 0.0f, Mathf.Sin(radians));
+
+        //// Debug.DrawLine is used to visualize the ray in the Unity editor.
+        //Debug.DrawLine(camHolder.position, camHolder.position + direction * 100, Color.green, 2.0f);
+        Debug.DrawRay(camHolder.position + (-camHolder.forward * 100), camHolder.forward * gunRange, Color.green, 5f);
 
         RaycastHit[] playerHits = Physics.RaycastAll(camHolder.position, camHolder.forward, gunRange);
         System.Array.Sort(playerHits, (a, b) => a.distance.CompareTo(b.distance));
@@ -287,17 +299,10 @@ public class PlayerShooting : MonoBehaviour
 
     private static void KillOtherPlayer(PlayerShooting hitPlayer)
     {
-        for (int i = 0; i < hitPlayer.GetComponent<PlayerDuplicateManager>().DuplicateControllers.Count; i++)
-        {
-            Destroy(hitPlayer.GetComponent<PlayerDuplicateManager>().DuplicateControllers[i].gameObject);
-        }
-        Destroy(hitPlayer.gameObject);
+        //hitPlayer.transform.position = Vector3.zero;
     }
 
-    void DrawLaser()
-    {
-        
-    }
+    
 
     IEnumerator DestroyLineRenderer(LineRenderer lr, float time)
     {
