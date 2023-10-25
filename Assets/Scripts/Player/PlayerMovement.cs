@@ -75,7 +75,7 @@ public class PlayerMovement : MonoBehaviour
     }
     private void Start()
     {
-        playerNumber = GetComponent<PlayerLocalManager>().PlayerNumber;
+        playerNumber = GetComponent<PlayerLocalManager>().PlayerID;
     }
     MoveState previousMoveState;
     private void GetMovementState()

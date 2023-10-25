@@ -32,7 +32,7 @@ public class CameraController : MonoBehaviour
         curTilt = transform.localEulerAngles.z;
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
-        playerNumber = GetComponent<PlayerLocalManager>().PlayerNumber;
+        playerNumber = GetComponent<PlayerLocalManager>().PlayerID;
 
         playerCamera.backgroundColor = RenderSettings.fogColor;
 

@@ -29,7 +29,7 @@ public class PlayerShooting : MonoBehaviour
     PlayerDuplicateManager duplicateManager;
     PlayerInput playerInput;
     PlayerMovement playerMovement;
-    int playerNumber;
+    private int playerID;
     // Start is called before the first frame update
     void Awake()
     {
@@ -40,7 +40,7 @@ public class PlayerShooting : MonoBehaviour
     }
     private void Start()
     {
-        playerNumber = GetComponent<PlayerLocalManager>().PlayerNumber;
+        playerID = GetComponent<PlayerLocalManager>().PlayerID; // Must be in start, as it is set in awake
     }
    
     // Update is called once per frame
@@ -119,7 +119,7 @@ public class PlayerShooting : MonoBehaviour
             RaycastHit hit = new RaycastHit();
             bool hitFromDuplicate = false;
             bool hitOtherPlayer = false;
-            GetRaycastHit();
+            FireRaycast(camHolder.position, gunRange);
 
             //DrawLasers(hit);
             //
@@ -177,7 +177,7 @@ public class PlayerShooting : MonoBehaviour
         //body shot
         if (hit.collider.GetComponent<PlayerLocalManager>() != null)
         {
-            if (hit.collider.GetComponent<PlayerLocalManager>().PlayerNumber != playerNumber)
+            if (hit.collider.GetComponent<PlayerLocalManager>().PlayerID != playerID)
             {
                 //FindObjectOfType<GameManager>().UpdateScore(playerNumber);
             }
@@ -185,7 +185,7 @@ public class PlayerShooting : MonoBehaviour
         //headshot
         if (hit.collider.GetComponentInParent<PlayerLocalManager>() != null)
         {
-            if (hit.collider.GetComponentInParent<PlayerLocalManager>().PlayerNumber != playerNumber)
+            if (hit.collider.GetComponentInParent<PlayerLocalManager>().PlayerID != playerID)
             {
                 //FindObjectOfType<GameManager>().UpdateScore(playerNumber);
             }
@@ -193,7 +193,7 @@ public class PlayerShooting : MonoBehaviour
         //dupshot body
         if (hit.collider.GetComponent<DuplicateController>() != null)
         {
-            if (hit.collider.GetComponent<DuplicateController>().PlayerNumber != playerNumber)
+            if (hit.collider.GetComponent<DuplicateController>().PlayerNumber != playerID)
             {
                 //FindObjectOfType<GameManager>().UpdateScore(playerNumber);
             }
@@ -201,7 +201,7 @@ public class PlayerShooting : MonoBehaviour
         //hed dup
         if (hit.collider.GetComponentInParent<DuplicateController>() != null)
         {
-            if (hit.collider.GetComponentInParent<DuplicateController>().PlayerNumber != playerNumber)
+            if (hit.collider.GetComponentInParent<DuplicateController>().PlayerNumber != playerID)
             {
                 //FindObjectOfType<GameManager>().UpdateScore(playerNumber);
             }
@@ -209,7 +209,62 @@ public class PlayerShooting : MonoBehaviour
 
     }
     private float diagonalDistance;
-    void GetRaycastHit()
+    public LayerMask mask;
+    void FireRaycast(Vector3 startRayPos, float rayDistance)
+    {
+        float repeatSpacing = 100;
+        RaycastHit hit;
+        //mask = LayerMask.NameToLayer("Player") + playerID;
+        mask = 1 << gameObject.layer;
+        mask = ~mask;
+
+        if (Physics.Raycast(startRayPos, camHolder.forward, out hit, rayDistance, mask))
+        {
+            //doesn't work for headshots currently so head collider is removed
+            if (hit.transform.TryGetComponent<PlayerShooting>(out PlayerShooting hitPlayer))
+            {
+                print(hit.transform.gameObject.name);
+                // hasHitPlayer = true;
+                KillOtherPlayer(hitPlayer);
+                //DrawLasers(gunTip.position, playerHit.point);
+                return;
+            }
+            else if(hit.transform.CompareTag("BoundsTrigger"))
+            {
+                print("Player Hit bound");
+                print(hit.point);
+                //DrawLasers(gunTip.position, playerHit.point);
+                Vector3 newRayOffset = Vector3.zero;
+                float remainingDist = rayDistance - Vector3.Distance(hit.point, startRayPos);
+
+                switch (hit.transform.name)
+                {
+                    case "-CubeX": newRayOffset =  new Vector3(repeatSpacing, 0, 0);  break;
+                    case "CubeX":  newRayOffset =  new Vector3(-repeatSpacing, 0, 0); break;
+                    case "-CubeY": newRayOffset =  new Vector3(0, repeatSpacing, 0);  break;
+                    case "CubeY":  newRayOffset =  new Vector3(0, -repeatSpacing, 0); break;
+                    case "-CubeZ": newRayOffset =  new Vector3(0, 0, repeatSpacing);  break;
+                    case "CubeZ":  newRayOffset =  new Vector3(0, 0, -repeatSpacing); break;
+                }
+                Vector3 newRayPos = hit.point + newRayOffset;
+                Debug.DrawLine(startRayPos, hit.point, Color.green, 5f);
+                FireRaycast(newRayPos, remainingDist);
+            }
+            else
+            {
+                Debug.DrawLine(startRayPos, hit.point, Color.green, 5f);
+                Debug.Log("hit wall", hit.transform.gameObject);
+                //print("Player Hit wall");
+
+            }
+        }
+        else
+        {
+            Debug.DrawRay(startRayPos, camHolder.forward * rayDistance, Color.green, 5f);
+
+        }
+    }
+    void AAAAAGetRaycastHit()
     {
         // bool playerHitSomething = false;
         // bool duphitSomething = false;
@@ -299,7 +354,8 @@ public class PlayerShooting : MonoBehaviour
 
     private static void KillOtherPlayer(PlayerShooting hitPlayer)
     {
-        hitPlayer.transform.position = Vector3.zero;
+       // hitPlayer.gameObject.GetComponent<Rigidbody>().velocity = Vector3.zero;
+        hitPlayer.transform.position = Vector3.zero ;
     }
 
     

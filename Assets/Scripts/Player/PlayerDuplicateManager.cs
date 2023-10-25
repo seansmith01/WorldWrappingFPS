@@ -61,8 +61,9 @@ public class PlayerDuplicateManager : MonoBehaviour
         if (dupOffset == Vector3.zero)
             return;
         GameObject meshDup = Instantiate(meshToCopy, transform.position + dupOffset, transform.rotation);
+        meshDup.layer = LayerMask.NameToLayer("Player" + GetComponent<PlayerLocalManager>().PlayerID);
         DuplicateController duplicateController = meshDup.AddComponent<DuplicateController>();
-        duplicateController.PlayerNumber = playerLocalManager.PlayerNumber;
+        duplicateController.PlayerNumber = playerLocalManager.PlayerID;
         duplicateController.CameraHolder = meshDup.transform.Find("CameraHolder");
         duplicateController.GunTip = meshDup.transform.Find("CameraHolder/Gun/GunTip");
       

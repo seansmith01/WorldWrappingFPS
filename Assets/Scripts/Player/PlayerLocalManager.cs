@@ -5,7 +5,7 @@ using UnityEngine;
 public class PlayerLocalManager : MonoBehaviour
 {
     GameManager gameManager;
-    public int PlayerNumber;
+    public int PlayerID;
 
     [SerializeField] MeshRenderer bodyMesh, headMesh;
     [SerializeField] Material redMat, blueMat, greenMat, yellowMat;
@@ -15,18 +15,29 @@ public class PlayerLocalManager : MonoBehaviour
 
         gameManager.CurrentPlayerCount++;
 
-        switch(gameManager.CurrentPlayerCount)
+        PlayerID = gameManager.CurrentPlayerCount;
+
+        ChangeMaterial();
+        ChangeLayer();
+    }
+
+    private void ChangeMaterial()
+    {
+        Material newMat = null;
+        switch (PlayerID)
         {
             case 0: Debug.LogError("No Players"); break;
-            case 1: ChangeMaterial(redMat); break;
-            case 2: ChangeMaterial(blueMat); break;
-            case 3: ChangeMaterial(greenMat); break;
-            case 4: ChangeMaterial(yellowMat); break;
+            case 1: newMat = redMat; break;
+            case 2: newMat = blueMat; break;
+            case 3: newMat = greenMat; break;
+            case 4: newMat = yellowMat; break;
         }
-    }
-    private void ChangeMaterial(Material newMat)
-    {
         bodyMesh.material = newMat;
         headMesh.material = newMat;
+    }
+
+    private void ChangeLayer()
+    {
+        gameObject.layer = LayerMask.NameToLayer("Player" + PlayerID);
     }
 }
