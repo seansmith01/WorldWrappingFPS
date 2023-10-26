@@ -270,9 +270,11 @@ public class PlayerShooting : MonoBehaviour
 
         }
     }
+    [SerializeField] GameObject impactPoint;
     void ImpactHit(RaycastHit hit)
     {
-        
+        GameObject instance = Instantiate(impactPoint, hit.point, Quaternion.identity);
+        Destroy(instance, 0.5f);
     }
     void AAAAAGetRaycastHit()
     {

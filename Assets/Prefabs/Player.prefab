@@ -598,6 +598,7 @@ MonoBehaviour:
   mask:
     serializedVersion: 2
     m_Bits: 0
+  impactPoint: {fileID: 4310804975005026669, guid: 235269c36688b4d46bb8e87696bd1cc2, type: 3}
 --- !u!114 &7224105872520467100
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -717,7 +718,7 @@ AudioSource:
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 8300000, guid: 9ae74cbe7553b6047b0c58f430b6a264, type: 3}
   m_PlayOnAwake: 1
-  m_Volume: 0.5
+  m_Volume: 0.25
   m_Pitch: 1
   Loop: 1
   Mute: 0
@@ -1705,7 +1706,7 @@ AudioSource:
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 0}
   m_PlayOnAwake: 1
-  m_Volume: 1
+  m_Volume: 0.25
   m_Pitch: 1
   Loop: 0
   Mute: 0
