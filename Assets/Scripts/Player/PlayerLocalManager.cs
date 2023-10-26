@@ -40,4 +40,37 @@ public class PlayerLocalManager : MonoBehaviour
     {
         gameObject.layer = LayerMask.NameToLayer("Player" + PlayerID);
     }
+    [SerializeField] MeshRenderer[] meshes;
+    [SerializeField] Collider[] colliders;
+    [SerializeField] PlayerMovement playerMovement;
+    [SerializeField] CameraController cameraController;
+    [SerializeField] Rigidbody rigidbody;
+    public void Die()
+    {
+        ToggleStuff(false);
+        StartCoroutine(Respawn());
+    }
+    void ToggleStuff(bool b)
+    {
+        for (int i = 0; i < meshes.Length; i++)
+        {
+            meshes[i].enabled = b;
+        }
+        for (int i = 0; i < colliders.Length; i++)
+        {
+            colliders[i].enabled = b;
+        }
+        playerMovement.enabled = b;
+        cameraController.enabled = b;
+        rigidbody.isKinematic = !b;
+
+    }
+    IEnumerator Respawn()
+    {
+        transform.position = new Vector3(0,10,0);
+        yield return new WaitForSeconds(2);
+        transform.position = new Vector3(0,10,0);
+        ToggleStuff(true);
+
+    }
 }

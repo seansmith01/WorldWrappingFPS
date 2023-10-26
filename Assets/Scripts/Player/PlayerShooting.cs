@@ -12,6 +12,7 @@ public class PlayerShooting : MonoBehaviour
     LevelRepeater levelRepeater;
    // [SerializeField] GameObject innerRing;
    // [SerializeField] Image outterRing;
+    [SerializeField] OneShotAudioHolder oneShotAudioHolder;
     [SerializeField] Transform camHolder, gunTip;
     [SerializeField] float gunRange;
 
@@ -120,7 +121,7 @@ public class PlayerShooting : MonoBehaviour
             bool hitFromDuplicate = false;
             bool hitOtherPlayer = false;
             FireRaycast(camHolder.position, gunRange);
-
+            oneShotAudioHolder.PlayShootSound();
             //DrawLasers(hit);
             //
             //
@@ -135,19 +136,18 @@ public class PlayerShooting : MonoBehaviour
             //}
             // Hit something
 
-            
+
         }
 
     }
+    [SerializeField] float lineRendererDuration;
     void DrawLasers(Vector3 gunTipPos, Vector3 endPoint)
     {
         LineRenderer shootLineRender = Instantiate(shootLineRenderer);
         shootLineRender.transform.parent = transform;
-        StartCoroutine(DestroyLineRenderer(shootLineRender, 5f)); // destroy after x secs
+        StartCoroutine(DestroyLineRenderer(shootLineRender, lineRendererDuration)); // destroy after x secs
         
 
-        shootLineRender.endWidth = 0.1f;
-        shootLineRender.startWidth = 0.1f;
 
         float shotDistance = (endPoint - gunTipPos).magnitude;
 
@@ -160,7 +160,7 @@ public class PlayerShooting : MonoBehaviour
         {
             LineRenderer dupShootLineRender = Instantiate(shootLineRenderer);
             dupShootLineRender.transform.parent = transform;
-            StartCoroutine(DestroyLineRenderer(dupShootLineRender, 5f)); // destroy after x secs
+            StartCoroutine(DestroyLineRenderer(dupShootLineRender, lineRendererDuration)); // destroy after x secs
         
         
             dupShootLineRender.endWidth = 0.1f;
@@ -223,11 +223,12 @@ public class PlayerShooting : MonoBehaviour
             //doesn't work for headshots currently so head collider is removed
             if (hit.transform.TryGetComponent<PlayerShooting>(out PlayerShooting hitPlayer))
             {
-                print(hit.transform.gameObject.name);
+                Debug.Log(hit.transform.gameObject.name, hit.transform.gameObject);
+              //  print(hit.transform.gameObject.name);
                 // hasHitPlayer = true;
                 KillOtherPlayer(hitPlayer);
+                DrawLasers(gunTip.position, hit.point);
                 //DrawLasers(gunTip.position, playerHit.point);
-                return;
             }
             else if(hit.transform.CompareTag("BoundsTrigger"))
             {
@@ -248,21 +249,30 @@ public class PlayerShooting : MonoBehaviour
                 }
                 Vector3 newRayPos = hit.point + newRayOffset;
                 Debug.DrawLine(startRayPos, hit.point, Color.green, 5f);
+                DrawLasers(gunTip.position, hit.point);
                 FireRaycast(newRayPos, remainingDist);
             }
             else
             {
+                DrawLasers(gunTip.position, hit.point);
                 Debug.DrawLine(startRayPos, hit.point, Color.green, 5f);
                 Debug.Log("hit wall", hit.transform.gameObject);
                 //print("Player Hit wall");
 
             }
+            ImpactHit(hit);
+
         }
         else
         {
             Debug.DrawRay(startRayPos, camHolder.forward * rayDistance, Color.green, 5f);
+            DrawLasers(gunTip.position, gunTip.position + (gunTip.forward * gunRange));
 
         }
+    }
+    void ImpactHit(RaycastHit hit)
+    {
+        
     }
     void AAAAAGetRaycastHit()
     {
@@ -354,15 +364,24 @@ public class PlayerShooting : MonoBehaviour
 
     private static void KillOtherPlayer(PlayerShooting hitPlayer)
     {
-       // hitPlayer.gameObject.GetComponent<Rigidbody>().velocity = Vector3.zero;
-        hitPlayer.transform.position = Vector3.zero ;
+        // hitPlayer.transform.position = Vector3.zero;
+        hitPlayer.GetComponent<PlayerLocalManager>().Die();
     }
 
     
 
-    IEnumerator DestroyLineRenderer(LineRenderer lr, float time)
+    IEnumerator DestroyLineRenderer(LineRenderer lr, float duration)
     {
-        yield return new WaitForSeconds(time);
+
+        lr.widthMultiplier = 1;
+        float time = 0f;
+
+        while (time < 1)
+        {
+            time += Time.deltaTime / duration;
+            lr.widthMultiplier = Mathf.Lerp(1, 0, time);
+            yield return null;
+        }
         Destroy(lr.gameObject);
     }
     //Called after Update

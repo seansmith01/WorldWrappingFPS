@@ -360,34 +360,35 @@ public class PlayerMovement : MonoBehaviour
     
     void WrapCheck()
     {
-        float boundsMax = levelRepeater.RepeatSpacing / 2f;
-        if (transform.position.x > boundsMax)
+        float boundsMaxX = levelRepeater.RepeatSpacing.x / 2f;
+        float boundsMaxY = levelRepeater.RepeatSpacing.y / 2f;
+        float boundsMaxZ = levelRepeater.RepeatSpacing.z / 2f;
+        if (transform.position.x > boundsMaxX)
         {
-            WrapTo(new Vector3(-boundsMax, transform.position.y, transform.position.z));
+            WrapTo(new Vector3(-boundsMaxX, transform.position.y, transform.position.z));
         }
-        if (transform.position.x < -boundsMax)
+        if (transform.position.x < -boundsMaxX)
         {
-            WrapTo(new Vector3(boundsMax, transform.position.y, transform.position.z));
-        }
-
-        if (transform.position.z > boundsMax)
-        {
-            WrapTo(new Vector3(transform.position.x, transform.position.y, -boundsMax));
-        }
-        if (transform.position.z < -boundsMax)
-        {
-            WrapTo(new Vector3(transform.position.x, transform.position.y, boundsMax));
+            WrapTo(new Vector3(boundsMaxX, transform.position.y, transform.position.z));
         }
 
-        if (transform.position.y > boundsMax)
+        if (transform.position.y > boundsMaxY)
         {
-            WrapTo(new Vector3(transform.position.x, -boundsMax, transform.position.z));
+            WrapTo(new Vector3(transform.position.x, -boundsMaxY, transform.position.z));
         }
-        if (transform.position.y < -boundsMax)
+        if (transform.position.y < -boundsMaxY)
         {
-            WrapTo(new Vector3(transform.position.x, boundsMax, transform.position.z));
+            WrapTo(new Vector3(transform.position.x, boundsMaxY, transform.position.z));
         }
 
+        if (transform.position.z > boundsMaxZ)
+        {
+            WrapTo(new Vector3(transform.position.x, transform.position.y, -boundsMaxZ));
+        }
+        if (transform.position.z < -boundsMaxZ)
+        {
+            WrapTo(new Vector3(transform.position.x, transform.position.y, boundsMaxZ));
+        }
     }
     // move dups first test
     

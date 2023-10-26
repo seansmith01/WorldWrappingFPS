@@ -9,7 +9,7 @@ public class LevelRepeater : MonoBehaviour
     [SerializeField] bool frustrumCulling;
     GameObject level;
     public float RepeatAmount;
-    public float RepeatSpacing;
+    public Vector3 RepeatSpacing;
     [SerializeField] private float startDistanceMultiplier;
     [SerializeField] private float endDistanceMultiplier;
     // Start is called before the first frame update
@@ -27,11 +27,11 @@ public class LevelRepeater : MonoBehaviour
         }
 
 
-        for (float x = -RepeatSpacing * RepeatAmount; x <= RepeatAmount * RepeatSpacing; x += RepeatSpacing)
+        for (float x = -RepeatSpacing.x * RepeatAmount; x <= RepeatAmount * RepeatSpacing.x; x += RepeatSpacing.x)
         {
-            for (float y = -RepeatSpacing * RepeatAmount; y <= RepeatAmount * RepeatSpacing; y += RepeatSpacing)
+            for (float y = -RepeatSpacing.y * RepeatAmount; y <= RepeatAmount * RepeatSpacing.y; y += RepeatSpacing.y)
             {
-                for (float z = -RepeatSpacing * RepeatAmount; z <= RepeatAmount * RepeatSpacing; z += RepeatSpacing)
+                for (float z = -RepeatSpacing.z * RepeatAmount; z <= RepeatAmount * RepeatSpacing.z; z += RepeatSpacing.z)
                 {
                     GameObject levelClone = Instantiate(level, new Vector3(x, y, z), Quaternion.identity);
 
@@ -69,9 +69,9 @@ public class LevelRepeater : MonoBehaviour
         }
         level.SetActive(false);
         // transform.eulerAngles = new Vector3(0, 0, 45);
-
-        RenderSettings.fogStartDistance = RepeatSpacing * startDistanceMultiplier;
-        RenderSettings.fogEndDistance = RepeatSpacing * endDistanceMultiplier;
+        float maxRepeatSpacing = GetMaxRepeatSpacing(RepeatSpacing.x, RepeatSpacing.y, RepeatSpacing.z);
+        RenderSettings.fogStartDistance = maxRepeatSpacing * startDistanceMultiplier;
+        RenderSettings.fogEndDistance = maxRepeatSpacing * endDistanceMultiplier;
     }
 
     private void Update()
@@ -85,5 +85,11 @@ public class LevelRepeater : MonoBehaviour
         {
             SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
         }
+    }
+    float GetMaxRepeatSpacing(float a, float b, float c)
+    {
+        // Compare a to b, and then compare the result to c to find the maximum value.
+        float max = Mathf.Min(Mathf.Min(a, b), c);
+        return max;
     }
 }
