@@ -10,6 +10,7 @@ public class LevelRepeater : MonoBehaviour
     GameObject level;
     public float RepeatAmount;
     public Vector3 RepeatSpacing;
+    [SerializeField] private Transform boundsTriggers;
     [SerializeField] private float startDistanceMultiplier;
     [SerializeField] private float endDistanceMultiplier;
     // Start is called before the first frame update
