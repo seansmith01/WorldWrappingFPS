@@ -19,6 +19,7 @@ public class LevelRepeater : MonoBehaviour
         GameObject holder = new GameObject("LevelClonesHolder");
         //Color col = FindObjectOfType<Camera>().GetComponent<Camera>().backgroundColor; 
         //RenderSettings.fogColor = col;
+        SetUpRaycastBounds();
         for (int i = 0; i < transform.childCount; i++)
         {
             if (transform.GetChild(i).gameObject.activeSelf)
@@ -26,6 +27,7 @@ public class LevelRepeater : MonoBehaviour
                 level = transform.GetChild(i).gameObject;
             }
         }
+
 
 
         for (float x = -RepeatSpacing.x * RepeatAmount; x <= RepeatAmount * RepeatSpacing.x; x += RepeatSpacing.x)
@@ -92,5 +94,23 @@ public class LevelRepeater : MonoBehaviour
         // Compare a to b, and then compare the result to c to find the maximum value.
         float max = Mathf.Min(Mathf.Min(a, b), c);
         return max;
+    }
+    [SerializeField] Transform minusBoundsX;
+    [SerializeField] Transform positiveBoundsX;
+    [SerializeField] Transform minusBoundsY;
+    [SerializeField] Transform positiveBoundsY;
+    [SerializeField] Transform minusBoundsZ;
+    [SerializeField] Transform positiveBoundsZ;
+    void SetUpRaycastBounds()
+    {
+        float posX = (RepeatSpacing.x / 2) + 1;
+        float posY = (RepeatSpacing.y / 2) + 1;
+        float posZ = (RepeatSpacing.z / 2) + 1;
+        minusBoundsX.position = new Vector3(-posX, 0, 0);
+        positiveBoundsX.position = new Vector3(posX, 0, 0);
+        minusBoundsY.position = new Vector3(0, -posY, 0);
+        positiveBoundsY.position = new Vector3(0, posY, 0);
+        minusBoundsZ.position = new Vector3(0, 0, -posZ);
+        positiveBoundsZ.position = new Vector3(0, 0, posZ);
     }
 }
