@@ -45,10 +45,6 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] Text strafeText; 
     bool readyToJump = true;
 
-    [Header("WallRunning")]
-    [SerializeField] float wallRunForwardForce;
-    [SerializeField] float wallRunDownForceSmall;
-    [SerializeField] float wallRunDownForceBig;
 
     bool isRotating;
 
@@ -61,8 +57,7 @@ public class PlayerMovement : MonoBehaviour
     public enum MoveState
     {
         Grounded,
-        Flying,
-        WallRunning
+        Flying
     }
     public MoveState CurrentMoveState;
     private void Awake()
@@ -87,12 +82,6 @@ public class PlayerMovement : MonoBehaviour
             return; // return so can't wallrun when grounded
         }
         // Not Grounded
-        // If Wallruning
-        if (IsWallRunningLeft() || IsWallRunningRight())
-        {
-            //CurrentMoveState = MoveState.WallRunning;
-            //return;
-        }
         // Not Wallrunning
         CurrentMoveState = MoveState.Flying;
     }
@@ -105,9 +94,6 @@ public class PlayerMovement : MonoBehaviour
             case MoveState.Grounded:
                 GroundedMovement();
                 LimitGroundSpeed();
-                break;
-            case MoveState.WallRunning:
-                WallRunningMovement();
                 break;
             case MoveState.Flying:
                 FlyingMovement();
@@ -140,7 +126,7 @@ public class PlayerMovement : MonoBehaviour
     void JumpCheck()
     {
         // Coyote time
-        if (IsGrounded() || IsWallRunning())
+        if (IsGrounded())
         {
             coyoteTimer = 0;
         }
@@ -219,33 +205,10 @@ public class PlayerMovement : MonoBehaviour
             return -downForceAfterApex;
         }
     }
-    void WallRunningMovement()
-    {
-        if(GetRelativeVelocity().y > 0)
-        {
-            //SetRelativeVelocity(new Vector3(GetRelativeVelocity().x, GetRelativeVelocity().y * 0.5f, GetRelativeVelocity().z));
-        }
-        else
-        {
-            //SetRelativeVelocity(new Vector3(GetRelativeVelocity().x, wallRunDownForceBig, GetRelativeVelocity().z));
-        }
-        rb.drag = 0;
-        Vector3 airborneMoveDirection = transform.forward * (InputDirection().z * wallRunForwardForce);
-        rb.AddForce(airborneMoveDirection, ForceMode.Force);
-    }
     void Jump()
     {
         //Grounded or just left ground
         if (readyToJump) { //can jump set in cooroutine     
-            readyToJump = false;
-            Invoke(nameof(ResetJump), jumpCooldown);
-
-            ResetRelativeYVelocity();
-            rb.AddForce(transform.up * jumpForce, ForceMode.Impulse);
-        }
-        if (CurrentMoveState == MoveState.WallRunning && readyToJump)
-        { 
-            //can jump set in cooroutine
             readyToJump = false;
             Invoke(nameof(ResetJump), jumpCooldown);
 
@@ -425,49 +388,7 @@ public class PlayerMovement : MonoBehaviour
             }
         }
         else
-            return false;
-    }
-    bool IsWallRunning()
-    {
-        if (IsWallRunningLeft() || IsWallRunningRight())
-        {
-            return true;
-        }
-        return false;
-    }
-    bool IsWallRunningLeft()
-    {
-        RaycastHit hit;
-        if (Physics.Raycast(transform.position, -transform.right, out hit, distToWallRun))
-        {
-            if (hit.collider.isTrigger)
-            {
-                return false;
-            }
-            else
-            {
-                return true;
-            }
-        }            
-        else
-            return false;
-    }
-    bool IsWallRunningRight()
-    {
-        RaycastHit hit;
-        if (Physics.Raycast(transform.position, transform.right, out hit, distToWallRun))
-        {
-            if (hit.collider.isTrigger)
-            {
-                return false;
-            }
-            else
-            {
-                return true;
-            }
-        }
-        else
-            return false;
+            return false;    
     }
 }
 //#region Collisions
