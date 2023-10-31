@@ -11,11 +11,11 @@ public class PlayerLocalManager : MonoBehaviour
     [SerializeField] Material redMat, blueMat, greenMat, yellowMat;
     private void Awake()
     {
-        gameManager = FindFirstObjectByType<GameManager>();
-
-        gameManager.CurrentPlayerCount++;
-
-        PlayerID = gameManager.CurrentPlayerCount;
+        //gameManager = FindFirstObjectByType<GameManager>();
+        //
+        //gameManager.CurrentPlayerCount++;
+        //
+        //PlayerID = gameManager.CurrentPlayerCount;
 
         ChangeMaterial();
         ChangeLayer();
@@ -24,6 +24,7 @@ public class PlayerLocalManager : MonoBehaviour
     private void ChangeMaterial()
     {
         Material newMat = null;
+        PlayerID = 1;
         switch (PlayerID)
         {
             case 0: Debug.LogError("No Players"); break;
