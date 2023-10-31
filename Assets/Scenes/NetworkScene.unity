@@ -71564,10 +71564,10 @@ MonoBehaviour:
   doGPUInstancing: 0
   frustrumCulling: 0
   RepeatAmount: 3
-  RepeatSpacing: {x: 100, y: 25, z: 50}
+  RepeatSpacing: {x: 50, y: 50, z: 50}
   boundsTriggers: {fileID: 2098377773}
-  startDistanceMultiplier: 20.25
-  endDistanceMultiplier: 20.5
+  startDistanceMultiplier: 2.25
+  endDistanceMultiplier: 2.5
   minusBoundsX: {fileID: 1540319236}
   positiveBoundsX: {fileID: 83507676}
   minusBoundsY: {fileID: 1552138776}

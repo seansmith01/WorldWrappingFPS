@@ -11,6 +11,7 @@ public class PlayerNetwork : NetworkBehaviour
     [SerializeField] GameObject camHolder;
     [SerializeField] Transform headTransform;
     [SerializeField] PlayerInput playerInput;
+    [SerializeField] PlayerDuplicateManager playerDuplicateManager;
 
     private readonly NetworkVariable<Vector3> netPos = new NetworkVariable<Vector3>(writePerm:NetworkVariableWritePermission.Owner);
     private readonly NetworkVariable<Quaternion> netRot = new NetworkVariable<Quaternion>(writePerm:NetworkVariableWritePermission.Owner);
@@ -23,6 +24,7 @@ public class PlayerNetwork : NetworkBehaviour
             playerInput.enabled = true;
             playerMovement.enabled = true;
             cameraController.enabled = true;
+            playerDuplicateManager.enabled = true;
             camHolder.SetActive(true);
         }
     }
