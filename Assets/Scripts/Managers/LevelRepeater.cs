@@ -38,17 +38,8 @@ public class LevelRepeater : MonoBehaviour
                 {
                     GameObject levelClone = Instantiate(level, new Vector3(x, y, z), Quaternion.identity);
 
-                    if(x==0 && y==0 && z == 0)
-                    {
-                        //print("middle level")
-                    }
-                    else //disable colliders
-                    {
-                        foreach (Collider c in levelClone.GetComponentsInChildren<Collider>())
-                        {
-                            //c.enabled = false;
-                        }
-                    }
+                    SetupDuplicateColliders(x, y, z, levelClone);
+
                     if (doGPUInstancing)
                     {
                         foreach (Renderer rend in levelClone.GetComponentsInChildren<Renderer>())
@@ -56,7 +47,7 @@ public class LevelRepeater : MonoBehaviour
                             rend.sharedMaterial.enableInstancing = true;
                         }
                     }
-                    
+
                     levelClone.name = "levelClone";
                     levelClone.transform.parent = holder.transform;
                     //if (frustrumCulling)
@@ -76,6 +67,8 @@ public class LevelRepeater : MonoBehaviour
         RenderSettings.fogStartDistance = maxRepeatSpacing * startDistanceMultiplier;
         RenderSettings.fogEndDistance = maxRepeatSpacing * endDistanceMultiplier;
     }
+
+    
 
     private void Update()
     {
@@ -112,5 +105,52 @@ public class LevelRepeater : MonoBehaviour
         positiveBoundsY.position = new Vector3(0, posY, 0);
         minusBoundsZ.position = new Vector3(0, 0, -posZ);
         positiveBoundsZ.position = new Vector3(0, 0, posZ);
+    }
+    // Enable or disable colliders based on whether it's the first iteration or not
+    private void SetupDuplicateColliders(float x, float y, float z, GameObject levelClone)
+    {
+        bool isFirstIteration = false;
+        // Check if the duplicated object's position matches RepeatSpacing in any direction
+        if (x == RepeatSpacing.x || x == -RepeatSpacing.x)
+        {
+            isFirstIteration = true;
+        }
+        if (y == RepeatSpacing.y || y == -RepeatSpacing.y)
+        {
+            isFirstIteration = true;
+
+        }
+        if (z == RepeatSpacing.z || z == -RepeatSpacing.z)
+        {
+            isFirstIteration = true;
+        }
+        if(x == 0 && y == 0 && z == 0)
+        {
+            isFirstIteration = true;
+        }
+
+        // Enable or disable colliders based on whether it's the first iteration or not
+        if (isFirstIteration)
+        {
+            // Enable colliders for the first iteration
+            SetCollidersEnabled(levelClone, true);
+        }
+        else
+        {
+            // Disable colliders for subsequent iterations
+            SetCollidersEnabled(levelClone, false);
+        }
+    }
+    private void SetCollidersEnabled(GameObject levelClone, bool b)
+    {
+        Debug.LogError("fuck");
+        foreach (Collider c in levelClone.GetComponentsInChildren<Collider>())
+        {
+            // c.enabled = b;
+            if (!b)
+            {
+                //Destroy(c);
+            }
+        }
     }
 }
