@@ -29,7 +29,7 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] float downForceBeforeApex;
     [SerializeField] float downForceAfterApex;
     [SerializeField] float downForceWhenRotating;
-    [SerializeField] float maxFallSpeed;
+    public float MaxFallSpeed;
     [SerializeField] float airMultiplier;
 
 
@@ -221,7 +221,7 @@ public class PlayerMovement : MonoBehaviour
     {
         readyToJump = true;
     }
-    Vector3 GetRelativeVelocity()
+    public Vector3 GetRelativeVelocity()
     {
         return transform.InverseTransformDirection(rb.velocity);
     }
@@ -231,26 +231,27 @@ public class PlayerMovement : MonoBehaviour
     }
     void LimitAirSpeed()
     {
+        Vector3 relativeVelocity = GetRelativeVelocity();
         // X
-        if (GetRelativeVelocity().x > maxAirStrafeSpeed)
+        if (relativeVelocity.x > maxAirStrafeSpeed)
         {
             SetRelativeVelocity(new Vector3(maxAirStrafeSpeed, GetRelativeVelocity().y, GetRelativeVelocity().z));
         }
-        if (GetRelativeVelocity().x < -maxAirStrafeSpeed)
+        if (relativeVelocity.x < -maxAirStrafeSpeed)
         {
             SetRelativeVelocity(new Vector3(-maxAirStrafeSpeed, GetRelativeVelocity().y, GetRelativeVelocity().z));
         }
         // Y
-        if (GetRelativeVelocity().y < maxFallSpeed)
+        if (relativeVelocity.y < MaxFallSpeed)
         {
-            SetRelativeVelocity(new Vector3(GetRelativeVelocity().x, maxFallSpeed, GetRelativeVelocity().z));
+            SetRelativeVelocity(new Vector3(GetRelativeVelocity().x, MaxFallSpeed, GetRelativeVelocity().z));
         }
         // Z
-        if (GetRelativeVelocity().z > maxAirForwardSpeed)
+        if (relativeVelocity.z > maxAirForwardSpeed)
         {
             SetRelativeVelocity(new Vector3(GetRelativeVelocity().x, GetRelativeVelocity().y, maxAirForwardSpeed));
         }
-        if (GetRelativeVelocity().z < -maxAirForwardSpeed)
+        if (relativeVelocity.z < -maxAirForwardSpeed)
         {
             SetRelativeVelocity(new Vector3(GetRelativeVelocity().x, GetRelativeVelocity().y, -maxAirForwardSpeed));
         }
