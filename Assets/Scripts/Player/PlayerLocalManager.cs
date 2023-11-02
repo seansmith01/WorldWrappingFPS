@@ -9,13 +9,23 @@ public class PlayerLocalManager : MonoBehaviour
 
     [SerializeField] MeshRenderer bodyMesh, headMesh;
     [SerializeField] Material redMat, blueMat, greenMat, yellowMat;
+    [SerializeField] AudioListener audioListener;
     private void Awake()
     {
-        //gameManager = FindFirstObjectByType<GameManager>();
-        //
-        //gameManager.CurrentPlayerCount++;
-        //
-        //PlayerID = gameManager.CurrentPlayerCount;
+        if (FindFirstObjectByType(typeof(GameManager)))
+        {
+            gameManager = FindFirstObjectByType<GameManager>();
+
+            gameManager.CurrentPlayerCount++;
+
+            PlayerID = gameManager.CurrentPlayerCount;
+        }
+        else // for online for now
+        {
+            PlayerID = 1;
+
+        }
+
 
         ChangeMaterial();
         ChangeLayer();
@@ -24,14 +34,13 @@ public class PlayerLocalManager : MonoBehaviour
     private void ChangeMaterial()
     {
         Material newMat = null;
-        PlayerID = 1;
         switch (PlayerID)
         {
             case 0: Debug.LogError("No Players"); break;
-            case 1: newMat = redMat; break;
-            case 2: newMat = blueMat; break;
-            case 3: newMat = greenMat; break;
-            case 4: newMat = yellowMat; break;
+            case 1: newMat = redMat; audioListener.enabled = true; break;
+            case 2: newMat = blueMat; audioListener.enabled = false; break;
+            case 3: newMat = greenMat; audioListener.enabled = false; break;
+            case 4: newMat = yellowMat; audioListener.enabled = false; break;
         }
         bodyMesh.material = newMat;
         headMesh.material = newMat;
