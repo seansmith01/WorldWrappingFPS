@@ -501,6 +501,7 @@ MonoBehaviour:
   blueMat: {fileID: 2100000, guid: ea9507634de681b45b24c49c346d8970, type: 2}
   greenMat: {fileID: 2100000, guid: 13e5c2920da8d1e47b84c398abcb178d, type: 2}
   yellowMat: {fileID: 2100000, guid: a273660d0ad22664ba5012c4e6ac3401, type: 2}
+  audioListener: {fileID: 5356843145871756416}
   meshes:
   - {fileID: 1430342185722768088}
   - {fileID: 3840027864061956984}
@@ -538,7 +539,7 @@ MonoBehaviour:
   downForceBeforeApex: 30
   downForceAfterApex: 50
   downForceWhenRotating: 100
-  maxFallSpeed: -35
+  MaxFallSpeed: -35
   airMultiplier: 1
   jumpForce: 30
   jumpCooldown: 0.5
@@ -546,9 +547,6 @@ MonoBehaviour:
   jumpBufferDuration: 0.2
   forwardspeedText: {fileID: 0}
   strafeText: {fileID: 0}
-  wallRunForwardForce: 20
-  wallRunDownForceSmall: -30
-  wallRunDownForceBig: -50
   CurrentMoveState: 0
   groundDrag: 10
   rotateSpeed: 2
@@ -620,18 +618,22 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3840027863226486823}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e1dbd56ff5143d94aa24561ddc108767, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   freeFallAudioSource: {fileID: 1631540891499945299, guid: d4b50b8e516db784bae79fdd2f606c7c, type: 3}
-  radius: 50
-  maxCollidersToListenTo: 3
+  radius: 25
+  maxCollidersToListenTo: 5
   worldStaticMask:
     serializedVersion: 2
     m_Bits: 64
+  mask:
+    serializedVersion: 2
+    m_Bits: 16384
   closestColliders: []
+  volumeLerpSpeed: 2
 --- !u!136 &3840027863226486821
 CapsuleCollider:
   m_ObjectHideFlags: 0
