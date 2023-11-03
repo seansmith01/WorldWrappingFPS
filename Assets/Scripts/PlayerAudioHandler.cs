@@ -78,6 +78,11 @@ public class PlayerAudioHandler : MonoBehaviour
         //return;
         #endregion
         //Sphere overlap method
+
+        if (Physics.Raycast(transform.position,-transform.up,radius,worldStaticMask)) // return if anything directly below
+        {
+            return;
+        }
         Collider[] overLappingColliders = Physics.OverlapSphere(transform.position, radius, worldStaticMask);
         if (overLappingColliders.Length == 0)
         {
