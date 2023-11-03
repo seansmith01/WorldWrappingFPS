@@ -54,18 +54,22 @@ public class PlayerMovement : MonoBehaviour
     PlayerDuplicateManager duplicateManager;
     LevelRepeater levelRepeater;    
     Rigidbody rb;
+    OneShotAudioHolder oneShotAudioHolder;
+
     public enum MoveState
     {
         Grounded,
         Flying
     }
     public MoveState CurrentMoveState;
+    public bool IsGrounded { get; private set; }
     private void Awake()
     {
         rb = GetComponent<Rigidbody>();
         playerShooting = GetComponent<PlayerShooting>();
         duplicateManager = GetComponent<PlayerDuplicateManager>();
         playerInput = GetComponent<PlayerInput>();
+        oneShotAudioHolder = GetComponentInChildren<OneShotAudioHolder>();
         levelRepeater = FindFirstObjectByType<LevelRepeater>();
     }
     private void Start()
@@ -76,13 +80,14 @@ public class PlayerMovement : MonoBehaviour
     private void GetMovementState()
     {
         // If on ground
-        if (IsGrounded())
+        if (isGrounded())
         {
+            IsGrounded = true;
             CurrentMoveState = MoveState.Grounded;
             return; // return so can't wallrun when grounded
         }
         // Not Grounded
-        // Not Wallrunning
+        IsGrounded = false;
         CurrentMoveState = MoveState.Flying;
     }
     void FixedUpdate()
@@ -126,7 +131,7 @@ public class PlayerMovement : MonoBehaviour
     void JumpCheck()
     {
         // Coyote time
-        if (IsGrounded())
+        if (isGrounded())
         {
             coyoteTimer = 0;
         }
@@ -294,6 +299,7 @@ public class PlayerMovement : MonoBehaviour
         // Interpolation is complete.
         newSurfaceNormal = surfaceNormal;
         isRotating = true;
+        oneShotAudioHolder.PlayRotationSound();
 
     }
     void LerpToNewRotation()
@@ -373,7 +379,7 @@ public class PlayerMovement : MonoBehaviour
         if (playerShooting.IsGrappling())
             playerShooting.SetGrapplingPoint(playerShooting.GetGrapplePoint() + diff);
     }
-    bool IsGrounded()
+    private bool isGrounded()
     {
         RaycastHit hit;
         Debug.DrawRay(transform.position, -transform.up * distToGround);

@@ -220,11 +220,7 @@ public class PlayerShooting : MonoBehaviour
             Destroy(dupImpactInstance, 0.5f);
             StartCoroutine(DestroyLineRenderer(dupShootLineRender, lineRendererDuration)); // destroy after x secs
         }
-
     }
-    
-
-    
     //void AAAAAGetRaycastHit()
     //{
     //    // bool playerHitSomething = false;
@@ -323,7 +319,6 @@ public class PlayerShooting : MonoBehaviour
 
     IEnumerator DestroyLineRenderer(LineRenderer lr, float duration)
     {
-
         lr.widthMultiplier = 1;
         float time = 0f;
 

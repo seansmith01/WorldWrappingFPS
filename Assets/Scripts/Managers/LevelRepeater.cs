@@ -143,7 +143,6 @@ public class LevelRepeater : MonoBehaviour
     }
     private void SetCollidersEnabled(GameObject levelClone, bool b)
     {
-        Debug.LogError("fuck");
         foreach (Collider c in levelClone.GetComponentsInChildren<Collider>())
         {
             // c.enabled = b;
