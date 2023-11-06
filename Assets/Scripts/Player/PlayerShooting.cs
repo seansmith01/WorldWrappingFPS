@@ -67,6 +67,7 @@ public class PlayerShooting : MonoBehaviour
         if (playerInput.actions["Fire"].WasPressedThisFrame() && Time.time - shootCooldown > timeAtLastShot)
         {
             FireRaycast(camHolder.position, gunRange, 0f);
+
             oneShotAudioHolder.PlayShootSound();
 
             timeAtLastShot = Time.time;
