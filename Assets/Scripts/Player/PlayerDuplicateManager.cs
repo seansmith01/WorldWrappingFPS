@@ -23,7 +23,8 @@ public class PlayerDuplicateManager : MonoBehaviour
         float repeatSpacingX = levelRepeater.RepeatSpacing.x;
         float repeatSpacingY = levelRepeater.RepeatSpacing.y;
         float repeatSpacingZ = levelRepeater.RepeatSpacing.z;
-        float repeatAmount = levelRepeater.RepeatAmount - 1; // one less of the worl repeats
+        //float repeatAmount = levelRepeater.RepeatAmount - 1; // one less of the worl repeats
+        float repeatAmount = 1; // one less of the worl repeats
         //spawn dups
         for (float x = -repeatSpacingX * repeatAmount; x <= repeatAmount * repeatSpacingX; x += repeatSpacingX)
         {
