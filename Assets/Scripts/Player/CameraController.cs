@@ -41,14 +41,14 @@ public class CameraController : MonoBehaviour
     private void Update()
     {
         if(playerInput.actions["LowerSense"].WasPressedThisFrame()){
-            sensX = 7;
-            sensY = 7;
+            sensX = 10;
+            sensY = 10;
         }
 
+        RotateMainCamera();
     }
     void FixedUpdate()
     {
-        RotateMainCamera();
 
         if (Input.GetKeyDown(KeyCode.N))
         {
@@ -62,20 +62,21 @@ public class CameraController : MonoBehaviour
             }
             Cursor.visible = !Cursor.visible;
         }
+        
     }
-
+    float rotY;
+    Vector2 lookInput;
     void RotateMainCamera()
     {
-        
-
-        Vector2 lookInput = playerInput.actions["Look"].ReadValue<Vector2>();
+        lookInput = playerInput.actions["Look"].ReadValue<Vector2>();
         lookInput.x *= sensX * Time.deltaTime;
-        lookInput.y *= sensY * Time.deltaTime;
-
         transform.Rotate(new Vector3(0, lookInput.x, 0), Space.Self);
 
+        rotY += lookInput.y * sensY * Time.deltaTime;
+        rotY = Mathf.Clamp(rotY, -90f, 90f);
 
-        cameraHolder.Rotate(new Vector3(-lookInput.y, 0, 0), Space.Self);
+        cameraHolder.transform.localRotation = Quaternion.Euler(-rotY, 0f, 0f);
+
     }
 
     public void Punch(Vector2 dir)
