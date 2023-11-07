@@ -71424,7 +71424,7 @@ MonoBehaviour:
   doGPUInstancing: 0
   frustrumCulling: 0
   RepeatAmount: 3
-  RepeatSpacing: {x: 50, y: 50, z: 50}
+  RepeatSpacing: {x: 100, y: 100, z: 100}
   boundsTriggers: {fileID: 2098377773}
   startDistanceMultiplier: 3.25
   endDistanceMultiplier: 3.5
