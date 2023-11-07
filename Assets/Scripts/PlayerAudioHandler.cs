@@ -5,8 +5,10 @@ using UnityEngine;
 
 public class PlayerAudioHandler : MonoBehaviour
 {
+    public bool IsFirstPlayerLocal;
+
     private PlayerMovement playerMovement;
-    private AudioSource fallingAudioSource;
+    private AudioSource audioSource;
     [SerializeField] private OneShotAudioHolder oneShotAudioHolder;
 
     List<AudioSource> windAudioSources = new List<AudioSource>();
@@ -26,16 +28,24 @@ public class PlayerAudioHandler : MonoBehaviour
     private float timeSinceLastFootstep;
     private void Start()
     {
-        fallingAudioSource = GetComponent<AudioSource>();
+        audioSource = GetComponent<AudioSource>();
         playerMovement = GetComponent<PlayerMovement>();
 
-        GameObject pool = Instantiate(new GameObject("AudioSourcePool"));
-        for (int i = 0; i < maxCollidersToListenTo; i++)
+        if (IsFirstPlayerLocal)
         {
-            AudioSource newFreefallSound = Instantiate(freeFallAudioSource, pool.transform);
-            //newFreefallSound.gameObject.SetActive(false);
-            windAudioSources.Add(newFreefallSound);
+            GameObject pool = Instantiate(new GameObject("AudioSourcePool"));
+            for (int i = 0; i < maxCollidersToListenTo; i++)
+            {
+                AudioSource newFreefallSound = Instantiate(freeFallAudioSource, pool.transform);
+                //newFreefallSound.gameObject.SetActive(false);
+                windAudioSources.Add(newFreefallSound);
+            }
         }
+        else
+        {
+            audioSource.enabled = false;
+        }
+        
     }
 
     
@@ -43,20 +53,32 @@ public class PlayerAudioHandler : MonoBehaviour
     // In your Update method:
     void Update()
     {
+        if (playerMovement.IsGrounded)
+        {
+            FootstepSounds();
+        }
+
+        if (!IsFirstPlayerLocal)
+        {
+            return;
+        }
+
+        //Code from here only applies to the first player in splitscreeen
+
         if (Input.GetKeyDown(KeyCode.K))
         {
             transform.position = new Vector3(9, 17, 30);
             GetComponent<Rigidbody>().velocity = Vector3.zero;
         }
         Vector3 playerRelativeVelocity = playerMovement.GetRelativeVelocity();
-        MuteWindSources();
         float fallVolumeRatio = Mathf.Lerp(0, 0.25f, playerRelativeVelocity.y / playerMovement.MaxFallSpeed);
-        fallingAudioSource.volume = Mathf.Lerp(fallingAudioSource.volume, fallVolumeRatio, volumeLerpSpeed * Time.deltaTime);
+        audioSource.volume = Mathf.Lerp(audioSource.volume, fallVolumeRatio, volumeLerpSpeed * Time.deltaTime);
 
         if (playerMovement.IsGrounded)
         {
-            GroundedSounds();
+            MuteWindSources();
             return;
+
         }
         //NOT GROUNDED
         #region MultipleRaycastMethod
@@ -83,9 +105,21 @@ public class PlayerAudioHandler : MonoBehaviour
         {
             return;
         }
+        float downwardsRayRange = 15f;
+        float distToGroundRatio = 1f;// set to one so if in air and ray below is hitting nothing, the windsources shuld play full volume
+        RaycastHit downwardsHit;
+        
+        if(Physics.Raycast(transform.position, -transform.up, out downwardsHit, downwardsRayRange, worldStaticMask))
+        {
+            distToGroundRatio = Mathf.Lerp(0, 1, downwardsHit.distance / downwardsRayRange);
 
-        // Update the list of closest hits.
-        //colliders.Clear();
+            //distToGroundMultiplier = Mathf.Lerp(distToGroundMultiplier, distToGroundRatio, 150f * Time.deltaTime);
+        }
+
+        float playerYVelocityRatio = Mathf.Lerp(0, 1f, playerRelativeVelocity.y / playerMovement.MaxFallSpeed);
+        float targetVolume = playerYVelocityRatio * distToGroundRatio;
+        //print(targetVolume);
+        // Update the list of closest hits
         for (int i = 0; i < overLappingColliders.Length; i++)
         {
             
@@ -97,10 +131,21 @@ public class PlayerAudioHandler : MonoBehaviour
             //    break;
             //}
             windAudioSources[i].gameObject.SetActive(true);
-            float windVolumeRatio = Mathf.Lerp(0, 1f, playerRelativeVelocity.y / playerMovement.MaxFallSpeed);
-            windAudioSources[i].volume = windVolumeRatio;
+            float relativeYDifference = transform.InverseTransformPoint(transform.position).y - transform.InverseTransformPoint(closestPosOnCollider).y;
+
+            float relativeYDifferenceRatio = Mathf.Lerp(1, 0, Mathf.Abs(relativeYDifference) / (radius / 2f));
+            windAudioSources[i].GetComponent<test>().distanceFromPlayerY = relativeYDifference;
+            windAudioSources[i].GetComponent<test>().VolumeMultiplierDependingOnDistanceInThePlayersRelativeUpAxis = relativeYDifferenceRatio;
+            targetVolume *= relativeYDifferenceRatio;
+
+            windAudioSources[i].volume =  Mathf.Lerp(windAudioSources[i].volume, targetVolume, 150f * Time.deltaTime);
+            //windAudioSources[i].volume = targetVolume;
             //windAudioSources[i].volume = Mathf.Lerp(fallingAudioSource.volume, windVolumeRatio, volumeLerpSpeed * Time.deltaTime);
             windAudioSources[i].transform.position = closestPosOnCollider;
+            //Get the distance between the  co-oridinates of  the player and the closest point on the collider that the audio source is attached to
+            
+
+            
             Debug.DrawLine(transform.position, closestPosOnCollider, Color.red);
             //colliders.Add(overLappingColliders[i]);
         }
@@ -175,7 +220,7 @@ public class PlayerAudioHandler : MonoBehaviour
         }
     }
 
-    void GroundedSounds()
+    void FootstepSounds()
     {
         Vector3 playerRelativeVelocity = playerMovement.GetRelativeVelocity();
         if (playerRelativeVelocity.magnitude > 5f)
