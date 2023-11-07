@@ -630,6 +630,7 @@ MonoBehaviour:
   greenMat: {fileID: 2100000, guid: 13e5c2920da8d1e47b84c398abcb178d, type: 2}
   yellowMat: {fileID: 2100000, guid: a273660d0ad22664ba5012c4e6ac3401, type: 2}
   audioListener: {fileID: 5356843145871756416}
+  playerAudioHandler: {fileID: 5264449127457259682}
   meshes:
   - {fileID: 1430342185722768088}
   - {fileID: 3840027864061956984}
@@ -1835,7 +1836,7 @@ AudioSource:
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 0}
   m_PlayOnAwake: 1
-  m_Volume: 0.25
+  m_Volume: 0
   m_Pitch: 1
   Loop: 0
   Mute: 0
@@ -1945,7 +1946,7 @@ Transform:
   m_GameObject: {fileID: 5627144934254741802}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: -1, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1972,7 +1973,7 @@ AudioSource:
   Priority: 128
   DopplerLevel: 1
   MinDistance: 1
-  MaxDistance: 500
+  MaxDistance: 50
   Pan2D: 0
   rolloffMode: 0
   BypassEffects: 0
@@ -2007,7 +2008,7 @@ AudioSource:
     m_Curve:
     - serializedVersion: 3
       time: 0
-      value: 0
+      value: 1
       inSlope: 0
       outSlope: 0
       tangentMode: 0
