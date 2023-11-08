@@ -82,6 +82,7 @@ public class PlayerAudioHandler : MonoBehaviour
             return;
 
         }
+            MuteWindSources();
         //NOT GROUNDED
         #region MultipleRaycastMethod
         //GetClosestPointOnColliders();
@@ -143,7 +144,7 @@ public class PlayerAudioHandler : MonoBehaviour
             float relativeYDifferenceRatio = Mathf.Lerp(1, 0, Mathf.Abs(relativeYDifference) / (radius / 2f));
             windAudioSources[i].GetComponent<test>().distanceFromPlayerY = relativeYDifference;
             windAudioSources[i].GetComponent<test>().VolumeMultiplierDependingOnDistanceInThePlayersRelativeUpAxis = relativeYDifferenceRatio;
-            targetVolume *= relativeYDifferenceRatio;
+            //targetVolume *= relativeYDifferenceRatio;
 
             windAudioSources[i].volume =  Mathf.Lerp(windAudioSources[i].volume, targetVolume, 150f * Time.deltaTime);
             //windAudioSources[i].volume = targetVolume;
