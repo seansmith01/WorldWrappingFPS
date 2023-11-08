@@ -26,6 +26,7 @@ public class PlayerAudioHandler : MonoBehaviour
     [SerializeField] private float minTimeBetweenFootsteps = 0.3f;
     [SerializeField] private float maxTimeBetweenFootsteps = 0.6f;
     private float timeSinceLastFootstep;
+    private float timeSinceLastLand;
     private void Start()
     {
         audioSource = GetComponent<AudioSource>();
@@ -48,8 +49,8 @@ public class PlayerAudioHandler : MonoBehaviour
         
     }
 
-    
 
+    bool justEnteredGround = false;
     // In your Update method:
     void Update()
     {
@@ -71,7 +72,8 @@ public class PlayerAudioHandler : MonoBehaviour
             GetComponent<Rigidbody>().velocity = Vector3.zero;
         }
         Vector3 playerRelativeVelocity = playerMovement.GetRelativeVelocity();
-        float fallVolumeRatio = Mathf.Lerp(0, 0.25f, playerRelativeVelocity.y / playerMovement.MaxFallSpeed);
+        float ratio = playerRelativeVelocity.y / playerMovement.MaxFallSpeed;
+        float fallVolumeRatio = Mathf.Lerp(0.1f, 0.25f, playerRelativeVelocity.y / playerMovement.MaxFallSpeed);
         audioSource.volume = Mathf.Lerp(audioSource.volume, fallVolumeRatio, volumeLerpSpeed * Time.deltaTime);
 
         if (playerMovement.IsGrounded)

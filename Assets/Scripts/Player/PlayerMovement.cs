@@ -24,6 +24,8 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] float maxAirForwardSpeed;
     [SerializeField] float airStrafeForce;
     [SerializeField] float maxAirStrafeSpeed;
+    float currentInAirRelativeVelocityY;
+
     [Header("DownForce")]
     [SerializeField] float apexYVelocity;
     [SerializeField] float downForceBeforeApex;
@@ -76,36 +78,62 @@ public class PlayerMovement : MonoBehaviour
     {
         playerNumber = GetComponent<PlayerLocalManager>().PlayerID;
     }
-    MoveState previousMoveState;
-    private void GetMovementState()
+    private MoveState GetMovementState()
     {
         // If on ground
         if (isGrounded())
         {
             IsGrounded = true;
-            CurrentMoveState = MoveState.Grounded;
-            return; // return so can't wallrun when grounded
+
+            return MoveState.Grounded;
         }
-        // Not Grounded
-        IsGrounded = false;
-        CurrentMoveState = MoveState.Flying;
+        else
+        {
+            // Not Grounded
+            IsGrounded = false;
+            return MoveState.Flying;
+        }
+        
+    }
+    private void EnterState(MoveState newState)
+    {
+        CurrentMoveState = newState;
+        switch (newState)
+        {
+            //Entered Grounded state
+            case MoveState.Grounded:
+                oneShotAudioHolder.PlayLandSound(currentInAirRelativeVelocityY/MaxFallSpeed);
+                break;
+            //Entered Flying state
+            case MoveState.Flying:
+                break;
+        }
     }
     void FixedUpdate()
     {
-        GetMovementState();
-
-        switch (CurrentMoveState)
+        //Find current move state
+        MoveState newState = GetMovementState();
+        if(CurrentMoveState == newState) // If current move state is equal to new state found, update that move state
         {
-            case MoveState.Grounded:
-                GroundedMovement();
-                LimitGroundSpeed();
-                break;
-            case MoveState.Flying:
-                FlyingMovement();
-                LimitAirSpeed();
-                break;
+            switch (CurrentMoveState)
+            {
+                case MoveState.Grounded:
+                    GroundedMovement();
+                    LimitGroundSpeed();
+                    break;
+                case MoveState.Flying:
+                    FlyingMovement();
+                    LimitAirSpeed();
+                    currentInAirRelativeVelocityY = GetRelativeVelocity().y;
+                    break;
+            }
         }
-        previousMoveState = CurrentMoveState;
+        else // Else current move state needs to be switched
+        {
+            EnterState(newState);
+        }
+
+       
 
         if(isRotating)
         {
@@ -155,10 +183,6 @@ public class PlayerMovement : MonoBehaviour
         }
     }
     
-    private void ResetRelativeYVelocity()
-    {
-        SetRelativeVelocity(new Vector3(GetRelativeVelocity().x, 0, GetRelativeVelocity().z));
-    }
     [SerializeField] float groundDrag;
     void GroundedMovement()
     {
@@ -184,7 +208,6 @@ public class PlayerMovement : MonoBehaviour
     void FlyingMovement()
     {
         rb.drag = 0;
-
         Vector3 inputDirection = InputDirection();
 
         // Calculate the forces
@@ -217,7 +240,9 @@ public class PlayerMovement : MonoBehaviour
             readyToJump = false;
             Invoke(nameof(ResetJump), jumpCooldown);
 
-            ResetRelativeYVelocity();
+            //rb.velocity = Vector3.zero;
+            SetRelativeVelocity(new Vector3(GetRelativeVelocity().x, 0, GetRelativeVelocity().z));
+
             rb.AddForce(transform.up * jumpForce, ForceMode.Impulse);
 
             oneShotAudioHolder.PlayFootstepSound();

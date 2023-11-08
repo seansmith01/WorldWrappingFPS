@@ -150,7 +150,7 @@ public class PlayerShooting : MonoBehaviour
                 Debug.Log("Player Hit: " + hit.transform.gameObject.name);
                 KillOtherPlayer(hitPlayer);
                 totalRayDistance += hit.distance;
-                DrawLasersAndImpactParticle(camHolder.forward * totalRayDistance, true);
+                DrawLasersAndImpactParticle(camHolder.forward * totalRayDistance, true , hit.normal);
             }
             else if (hit.transform.CompareTag("BoundsTrigger"))
             {
@@ -184,7 +184,7 @@ public class PlayerShooting : MonoBehaviour
                 // Handle when the ray hits a wall
                 
                 totalRayDistance += hit.distance;
-                DrawLasersAndImpactParticle(camHolder.forward * totalRayDistance, true);
+                DrawLasersAndImpactParticle(camHolder.forward * totalRayDistance, true, hit.normal);
                 Debug.DrawLine(startRayPos, hit.point, Color.green, 5f);
                 Debug.Log("Hit a wall: " + hit.transform.gameObject.name);
                 Debug.Log("Hit distance: " + hit.distance);
@@ -195,12 +195,12 @@ public class PlayerShooting : MonoBehaviour
             // Handle when the ray doesn't hit anything
             Debug.DrawRay(startRayPos, camHolder.forward * rayRange, Color.green, 5f);
             // Ray missed everything so it's laser range is the max possible
-            DrawLasersAndImpactParticle(camHolder.forward * gunRange, false);
+            DrawLasersAndImpactParticle(camHolder.forward * gunRange, false, Vector3.zero);
         }
     }
 
 
-    void DrawLasersAndImpactParticle(Vector3 hitOffset, bool hitSomething)
+    void DrawLasersAndImpactParticle(Vector3 hitOffset, bool hitSomething, Vector3 hitNormal)
     {
         LineRenderer shootLineRender = Instantiate(shootLineRenderer);
         shootLineRender.transform.parent = transform;
@@ -212,7 +212,7 @@ public class PlayerShooting : MonoBehaviour
 
         if (hitSomething)
         {
-            GameObject ImpactInstance = Instantiate(impactPointGO, camHolder.position + hitOffset, Quaternion.identity);
+            GameObject ImpactInstance = Instantiate(impactPointGO, camHolder.position + hitOffset + (hitNormal / 2f), Quaternion.identity);
             Destroy(ImpactInstance, 0.5f);
         }
         

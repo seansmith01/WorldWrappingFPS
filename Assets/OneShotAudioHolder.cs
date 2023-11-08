@@ -12,6 +12,8 @@ public class OneShotAudioHolder : MonoBehaviour
     [SerializeField] private AudioClip[] footstepClips;
     [SerializeField] private float minFootstepVolume = 0.3f;
     [SerializeField] private float maxFootstepVolume = 0.6f;
+    [Header("Landing")]
+    [SerializeField] private AudioClip landClip;
     [Header("Rotation")]
     [SerializeField] private AudioSource rotationAudioSource;
     [SerializeField] private AudioClip[] rotationClips;
@@ -29,6 +31,12 @@ public class OneShotAudioHolder : MonoBehaviour
         float rotationVolume = Random.Range(minFootstepVolume, maxFootstepVolume);
         //rotationAudioSource.pitch = Random.Range(-0.85f, 1.15f);
         rotationAudioSource.PlayOneShot(rotationSound, rotationVolume);
+    }
+    public void PlayLandSound(float velocity)
+    {
+        //print(velocity);
+        footstepAudioSource.PlayOneShot(landClip, velocity * 2f);
+
     }
     public void PlayFootstepSound()
     {
