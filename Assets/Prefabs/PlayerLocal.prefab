@@ -490,7 +490,7 @@ AudioSource:
     m_Curve:
     - serializedVersion: 3
       time: 0
-      value: 0
+      value: 1
       inSlope: 0
       outSlope: 0
       tangentMode: 0
@@ -630,6 +630,7 @@ MonoBehaviour:
   greenMat: {fileID: 2100000, guid: 13e5c2920da8d1e47b84c398abcb178d, type: 2}
   yellowMat: {fileID: 2100000, guid: a273660d0ad22664ba5012c4e6ac3401, type: 2}
   audioListener: {fileID: 5356843145871756416}
+  playerAudioHandler: {fileID: 5264449127457259682}
   meshes:
   - {fileID: 1430342185722768088}
   - {fileID: 3840027864061956984}
@@ -671,7 +672,7 @@ MonoBehaviour:
   airMultiplier: 1
   jumpForce: 30
   jumpCooldown: 0.5
-  coyoteTimeDuration: 0.5
+  coyoteTimeDuration: 0.2
   jumpBufferDuration: 0.2
   forwardspeedText: {fileID: 0}
   strafeText: {fileID: 0}
@@ -711,7 +712,7 @@ MonoBehaviour:
   oneShotAudioHolder: {fileID: 3437042451482148829}
   camHolder: {fileID: 7105373998655432928}
   gunTip: {fileID: 3840027864931282904}
-  gunRange: 500
+  gunRange: 250
   maxRotateDistance: 20
   maxGrappleDistance: 100
   grappleLineRenderer: {fileID: 493240653}
@@ -722,6 +723,7 @@ MonoBehaviour:
   bullet: {fileID: 4310804975005026669, guid: fdc5f94e0dbd3e54cae87f9796612a6a, type: 3}
   lineRendererDuration: 0.5
   impactPointGO: {fileID: 4310804975005026669, guid: 235269c36688b4d46bb8e87696bd1cc2, type: 3}
+  shootCooldown: 1
 --- !u!114 &7224105872520467100
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -761,7 +763,6 @@ MonoBehaviour:
   mask:
     serializedVersion: 2
     m_Bits: 0
-  colliders: []
   volumeLerpSpeed: 2
   minTimeBetweenFootsteps: 0.3
   maxTimeBetweenFootsteps: 0.6
@@ -1706,7 +1707,7 @@ AudioListener:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4863816884528675664}
-  m_Enabled: 0
+  m_Enabled: 1
 --- !u!1 &5104264528180279687
 GameObject:
   m_ObjectHideFlags: 0
@@ -1835,7 +1836,7 @@ AudioSource:
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 0}
   m_PlayOnAwake: 1
-  m_Volume: 1
+  m_Volume: 0
   m_Pitch: 1
   Loop: 0
   Mute: 0
@@ -1945,7 +1946,7 @@ Transform:
   m_GameObject: {fileID: 5627144934254741802}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: -1, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1972,7 +1973,7 @@ AudioSource:
   Priority: 128
   DopplerLevel: 1
   MinDistance: 1
-  MaxDistance: 500
+  MaxDistance: 50
   Pan2D: 0
   rolloffMode: 0
   BypassEffects: 0
@@ -2007,7 +2008,7 @@ AudioSource:
     m_Curve:
     - serializedVersion: 3
       time: 0
-      value: 0
+      value: 1
       inSlope: 0
       outSlope: 0
       tangentMode: 0

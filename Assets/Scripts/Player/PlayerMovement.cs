@@ -219,6 +219,8 @@ public class PlayerMovement : MonoBehaviour
 
             ResetRelativeYVelocity();
             rb.AddForce(transform.up * jumpForce, ForceMode.Impulse);
+
+            oneShotAudioHolder.PlayFootstepSound();
         }
     }
     

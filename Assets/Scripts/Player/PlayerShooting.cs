@@ -60,12 +60,17 @@ public class PlayerShooting : MonoBehaviour
         ShootCheck();
         RotateCheck();
     }
+    private float timeAtLastShot = 0f;
+    [SerializeField] private float shootCooldown = 1f;
     void ShootCheck()
     {
-        if (playerInput.actions["Fire"].WasPressedThisFrame())
+        if (playerInput.actions["Fire"].WasPressedThisFrame() && Time.time - shootCooldown > timeAtLastShot)
         {
             FireRaycast(camHolder.position, gunRange, 0f);
+
             oneShotAudioHolder.PlayShootSound();
+
+            timeAtLastShot = Time.time;
         }
     }
     private void RotateCheck()
@@ -145,7 +150,7 @@ public class PlayerShooting : MonoBehaviour
                 Debug.Log("Player Hit: " + hit.transform.gameObject.name);
                 KillOtherPlayer(hitPlayer);
                 totalRayDistance += hit.distance;
-                DrawLasersAndImpactParticle(camHolder.forward * totalRayDistance);
+                DrawLasersAndImpactParticle(camHolder.forward * totalRayDistance, true);
             }
             else if (hit.transform.CompareTag("BoundsTrigger"))
             {
@@ -179,7 +184,7 @@ public class PlayerShooting : MonoBehaviour
                 // Handle when the ray hits a wall
                 
                 totalRayDistance += hit.distance;
-                DrawLasersAndImpactParticle(camHolder.forward * totalRayDistance);
+                DrawLasersAndImpactParticle(camHolder.forward * totalRayDistance, true);
                 Debug.DrawLine(startRayPos, hit.point, Color.green, 5f);
                 Debug.Log("Hit a wall: " + hit.transform.gameObject.name);
                 Debug.Log("Hit distance: " + hit.distance);
@@ -190,23 +195,27 @@ public class PlayerShooting : MonoBehaviour
             // Handle when the ray doesn't hit anything
             Debug.DrawRay(startRayPos, camHolder.forward * rayRange, Color.green, 5f);
             // Ray missed everything so it's laser range is the max possible
-            DrawLasersAndImpactParticle(camHolder.forward * gunRange);
+            DrawLasersAndImpactParticle(camHolder.forward * gunRange, false);
         }
     }
 
 
-    void DrawLasersAndImpactParticle(Vector3 hitOffset)
+    void DrawLasersAndImpactParticle(Vector3 hitOffset, bool hitSomething)
     {
         LineRenderer shootLineRender = Instantiate(shootLineRenderer);
         shootLineRender.transform.parent = transform;
-        StartCoroutine(DestroyLineRenderer(shootLineRender, lineRendererDuration)); // destroy after x secs
-
-        GameObject ImpactInstance = Instantiate(impactPointGO, camHolder.position + hitOffset, Quaternion.identity);
-        Destroy(ImpactInstance, 0.5f);
 
         shootLineRender.SetPosition(0, gunTip.position);
         shootLineRender.SetPosition(1, camHolder.position + hitOffset);
 
+        StartCoroutine(DestroyLineRenderer(shootLineRender, lineRendererDuration)); // destroy after x secs
+
+        if (hitSomething)
+        {
+            GameObject ImpactInstance = Instantiate(impactPointGO, camHolder.position + hitOffset, Quaternion.identity);
+            Destroy(ImpactInstance, 0.5f);
+        }
+        
         for (int i = 0; i < duplicateManager.DuplicateControllers.Count; i++)
         {
             LineRenderer dupShootLineRender = Instantiate(shootLineRenderer);
@@ -215,10 +224,15 @@ public class PlayerShooting : MonoBehaviour
             Transform dupCamHolder = duplicateManager.DuplicateControllers[i].CameraHolder;
             dupShootLineRender.SetPosition(0, dupGunTip.position);
             dupShootLineRender.SetPosition(1, dupCamHolder.position + hitOffset);
-       
-            GameObject dupImpactInstance = Instantiate(impactPointGO, dupCamHolder.position + hitOffset, Quaternion.identity);
-            Destroy(dupImpactInstance, 0.5f);
             StartCoroutine(DestroyLineRenderer(dupShootLineRender, lineRendererDuration)); // destroy after x secs
+
+            if (hitSomething)
+            {
+                GameObject dupImpactInstance = Instantiate(impactPointGO, dupCamHolder.position + hitOffset, Quaternion.identity);
+                Destroy(dupImpactInstance, 0.5f);
+            }
+
+                
         }
     }
     //void AAAAAGetRaycastHit()

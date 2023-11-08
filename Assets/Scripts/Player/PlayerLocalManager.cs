@@ -7,9 +7,23 @@ public class PlayerLocalManager : MonoBehaviour
     GameManager gameManager;
     public int PlayerID;
 
-    [SerializeField] MeshRenderer bodyMesh, headMesh;
-    [SerializeField] Material redMat, blueMat, greenMat, yellowMat;
+    [Header("Player Meshes")]
+    [SerializeField] MeshRenderer bodyMesh;
+    [SerializeField] MeshRenderer headMesh;
+    [Header("Player Materials")]
+    [SerializeField] Material redMat;
+    [SerializeField] Material blueMat;
+    [SerializeField] Material greenMat;
+    [SerializeField] Material yellowMat;
+    [Header("Disable if not first player")]
     [SerializeField] AudioListener audioListener;
+    [SerializeField] PlayerAudioHandler playerAudioHandler;
+    [Header("Toggle Off When Dead")]
+    [SerializeField] MeshRenderer[] meshes;
+    [SerializeField] Collider[] colliders;
+    [SerializeField] PlayerMovement playerMovement;
+    [SerializeField] CameraController cameraController;
+    [SerializeField] Rigidbody rb;
     private void Awake()
     {
         if (FindFirstObjectByType(typeof(GameManager)))
@@ -37,10 +51,10 @@ public class PlayerLocalManager : MonoBehaviour
         switch (PlayerID)
         {
             case 0: Debug.LogError("No Players"); break;
-            case 1: newMat = redMat; audioListener.enabled = true; break;
-            case 2: newMat = blueMat; audioListener.enabled = false; break;
-            case 3: newMat = greenMat; audioListener.enabled = false; break;
-            case 4: newMat = yellowMat; audioListener.enabled = false; break;
+            case 1: newMat = redMat; playerAudioHandler.IsFirstPlayerLocal = true; break;
+            case 2: newMat = blueMat; audioListener.enabled = false; playerAudioHandler.IsFirstPlayerLocal = false; break;
+            case 3: newMat = greenMat; audioListener.enabled = false; playerAudioHandler.IsFirstPlayerLocal = false; break;
+            case 4: newMat = yellowMat; audioListener.enabled = false; playerAudioHandler.IsFirstPlayerLocal = false; break;
         }
         bodyMesh.material = newMat;
         headMesh.material = newMat;
@@ -50,17 +64,13 @@ public class PlayerLocalManager : MonoBehaviour
     {
         gameObject.layer = LayerMask.NameToLayer("Player" + PlayerID);
     }
-    [SerializeField] MeshRenderer[] meshes;
-    [SerializeField] Collider[] colliders;
-    [SerializeField] PlayerMovement playerMovement;
-    [SerializeField] CameraController cameraController;
-    [SerializeField] Rigidbody rigidbody;
+    
     public void Die()
     {
-        ToggleStuff(false);
+        ToggleStuffOnDie(false);
         StartCoroutine(Respawn());
     }
-    void ToggleStuff(bool b)
+    void ToggleStuffOnDie(bool b)
     {
         for (int i = 0; i < meshes.Length; i++)
         {
@@ -72,7 +82,7 @@ public class PlayerLocalManager : MonoBehaviour
         }
         playerMovement.enabled = b;
         cameraController.enabled = b;
-        rigidbody.isKinematic = !b;
+        rb.isKinematic = !b;
 
     }
     IEnumerator Respawn()
@@ -80,7 +90,7 @@ public class PlayerLocalManager : MonoBehaviour
         transform.position = new Vector3(0,10,0);
         yield return new WaitForSeconds(2);
         transform.position = new Vector3(0,10,0);
-        ToggleStuff(true);
+        ToggleStuffOnDie(true);
 
     }
 }

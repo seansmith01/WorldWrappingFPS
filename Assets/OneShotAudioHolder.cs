@@ -27,7 +27,8 @@ public class OneShotAudioHolder : MonoBehaviour
     {
         AudioClip rotationSound = rotationClips[Random.Range(0, rotationClips.Length)];
         float rotationVolume = Random.Range(minFootstepVolume, maxFootstepVolume);
-        footstepAudioSource.PlayOneShot(rotationSound, rotationVolume);
+        //rotationAudioSource.pitch = Random.Range(-0.85f, 1.15f);
+        rotationAudioSource.PlayOneShot(rotationSound, rotationVolume);
     }
     public void PlayFootstepSound()
     {
