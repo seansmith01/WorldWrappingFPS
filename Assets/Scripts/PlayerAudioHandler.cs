@@ -8,20 +8,29 @@ public class PlayerAudioHandler : MonoBehaviour
     public bool IsFirstPlayerLocal;
 
     private PlayerMovement playerMovement;
-    private AudioSource audioSource;
-    [SerializeField] private OneShotAudioHolder oneShotAudioHolder;
 
+    [Header("Misc")]
+    [SerializeField] private OneShotAudioHolder oneShotAudioHolder;
+    [SerializeField] LayerMask mask;
+    [Header("CollidersFallingAudio")]
     List<AudioSource> windAudioSources = new List<AudioSource>();
-    [SerializeField] AudioSource freeFallAudioSource;
+    [SerializeField] AudioSource colliderFreeFallAudioSource;
     [SerializeField] float radius;
     [SerializeField] int maxCollidersToListenTo;
     [SerializeField] LayerMask worldStaticMask;
 
-    [SerializeField] LayerMask mask;
     // Initialize a priority queue to keep track of the closest hits.
     private List<Vector3> closestPoints = new List<Vector3>();
-    [SerializeField] private float volumeLerpSpeed;
 
+    [Header("PlayerFallingWind")]
+    [SerializeField] private AudioSource playerFallingAudioSource;
+    [SerializeField] private float playerMinFallingWindVolume;
+    [SerializeField] private float playerMaxFallingWindVolume;
+    [SerializeField] private float otherPlayerMinFallingWindVolume;
+    [SerializeField] private float otherPlayerMaxFallingWindVolume;
+    [SerializeField] private float playerFallVolumeLerpSpeed = 2f;
+    private float currentMinFallingWindVolume;
+    private float currentMaxFallingWindVolume;
     [Header("Footsteps")]
     [SerializeField] private float minTimeBetweenFootsteps = 0.3f;
     [SerializeField] private float maxTimeBetweenFootsteps = 0.6f;
@@ -29,7 +38,6 @@ public class PlayerAudioHandler : MonoBehaviour
     private float timeSinceLastLand;
     private void Start()
     {
-        audioSource = GetComponent<AudioSource>();
         playerMovement = GetComponent<PlayerMovement>();
 
         if (IsFirstPlayerLocal)
@@ -37,16 +45,23 @@ public class PlayerAudioHandler : MonoBehaviour
             GameObject pool = Instantiate(new GameObject("AudioSourcePool"));
             for (int i = 0; i < maxCollidersToListenTo; i++)
             {
-                AudioSource newFreefallSound = Instantiate(freeFallAudioSource, pool.transform);
+                AudioSource newFreefallSound = Instantiate(colliderFreeFallAudioSource, pool.transform);
                 //newFreefallSound.gameObject.SetActive(false);
                 windAudioSources.Add(newFreefallSound);
             }
+
+            playerFallingAudioSource.spatialBlend = 0.0f;
+            currentMinFallingWindVolume = playerMinFallingWindVolume;
+            currentMaxFallingWindVolume = playerMaxFallingWindVolume;
         }
         else
         {
-            audioSource.enabled = false;
+            playerFallingAudioSource.spatialBlend = 1.0f;
+            //audioSource.enabled = false;
+            currentMinFallingWindVolume = otherPlayerMinFallingWindVolume;
+            currentMaxFallingWindVolume = otherPlayerMaxFallingWindVolume;
         }
-        
+
     }
 
 
@@ -54,11 +69,19 @@ public class PlayerAudioHandler : MonoBehaviour
     // In your Update method:
     void Update()
     {
+        Vector3 playerRelativeVelocity = playerMovement.GetRelativeVelocity();
 
         if (playerMovement.IsGrounded)
         {
             FootstepSounds();
+            playerFallingAudioSource.volume = 0f;
+
         }
+        else
+        {
+            InAirSounds(playerRelativeVelocity.y);
+        }
+        
 
         if (!IsFirstPlayerLocal)
         {
@@ -81,10 +104,7 @@ public class PlayerAudioHandler : MonoBehaviour
             //transform.position = new Vector3(9, 17, 30);
             GetComponent<Rigidbody>().velocity = Vector3.zero;
         }
-        Vector3 playerRelativeVelocity = playerMovement.GetRelativeVelocity();
-        float ratio = playerRelativeVelocity.y / playerMovement.MaxFallSpeed;
-        float fallVolumeRatio = Mathf.Lerp(0.1f, 0.25f, playerRelativeVelocity.y / playerMovement.MaxFallSpeed);
-        audioSource.volume = Mathf.Lerp(audioSource.volume, fallVolumeRatio, volumeLerpSpeed * Time.deltaTime);
+        
 
         if (playerMovement.IsGrounded)
         {
@@ -247,6 +267,11 @@ public class PlayerAudioHandler : MonoBehaviour
         }
     }
 
+    void InAirSounds(float relVelocityY)
+    {
+        float fallVolumeRatio = Mathf.Lerp(currentMinFallingWindVolume, currentMaxFallingWindVolume, relVelocityY / playerMovement.MaxFallSpeed);
+        playerFallingAudioSource.volume = Mathf.Lerp(playerFallingAudioSource.volume, fallVolumeRatio, playerFallVolumeLerpSpeed * Time.deltaTime);
+    }
     void FootstepSounds()
     {
         Vector3 playerRelativeVelocity = playerMovement.GetRelativeVelocity();
@@ -255,7 +280,8 @@ public class PlayerAudioHandler : MonoBehaviour
             // Check if enough time has passed to play the next footstep sound
             if (Time.time - timeSinceLastFootstep >= Random.Range(minTimeBetweenFootsteps, maxTimeBetweenFootsteps))
             {
-                oneShotAudioHolder.PlayFootstepSound();
+                oneShotAudioHolder.PlayFootstepSound(IsFirstPlayerLocal);
+                
 
                 timeSinceLastFootstep = Time.time; // Update the time since the last footstep sound
             }

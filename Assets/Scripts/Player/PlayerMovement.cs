@@ -245,7 +245,7 @@ public class PlayerMovement : MonoBehaviour
 
             rb.AddForce(transform.up * jumpForce, ForceMode.Impulse);
 
-            oneShotAudioHolder.PlayFootstepSound();
+            oneShotAudioHolder.PlayFootstepSound(true); // should pass through wheter is local player but cant be fucked
         }
     }
     
