@@ -756,8 +756,8 @@ MonoBehaviour:
   IsFirstPlayerLocal: 0
   oneShotAudioHolder: {fileID: 3437042451482148829}
   freeFallAudioSource: {fileID: 1631540891499945299, guid: d4b50b8e516db784bae79fdd2f606c7c, type: 3}
-  radius: 50
-  maxCollidersToListenTo: 25
+  radius: 25
+  maxCollidersToListenTo: 20
   worldStaticMask:
     serializedVersion: 2
     m_Bits: 64
@@ -767,6 +767,7 @@ MonoBehaviour:
   volumeLerpSpeed: 2
   minTimeBetweenFootsteps: 0.3
   maxTimeBetweenFootsteps: 0.6
+  closestPointsOnColliders: []
 --- !u!136 &3840027863226486821
 CapsuleCollider:
   m_ObjectHideFlags: 0

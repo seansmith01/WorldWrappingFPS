@@ -65,31 +65,22 @@ AudioSource:
     m_Curve:
     - serializedVersion: 3
       time: 0
-      value: 0.79999924
+      value: 0.4
       inSlope: 0
-      outSlope: -0.04563421
+      outSlope: 0
       tangentMode: 65
       weightedMode: 0
       inWeight: 0
       outWeight: 0
     - serializedVersion: 3
-      time: 0.2
-      value: 0.7908724
-      inSlope: -0.04563421
-      outSlope: -1.4106437
+      time: 1
+      value: 0.4
+      inSlope: -0
+      outSlope: -1.0204082
       tangentMode: 5
       weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.33333334
-    - serializedVersion: 3
-      time: 0.73939514
-      value: 0
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.33333334
+      inWeight: 0
+      outWeight: 0
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
@@ -151,4 +142,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   distanceFromPlayerY: 0
-  VolumeMultiplierDependingOnDistanceInThePlayersRelativeUpAxis: 0
+  RelativeYDifferenceRatio: 0
+  thing: 0
+  targetVol: 0
+  debug: 0

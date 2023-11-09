@@ -50,7 +50,7 @@ public class PlayerAudioHandler : MonoBehaviour
     }
 
 
-    bool justEnteredGround = false;
+    [SerializeField] List<Vector3> closestPointsOnColliders = new List<Vector3>();
     // In your Update method:
     void Update()
     {
@@ -67,7 +67,7 @@ public class PlayerAudioHandler : MonoBehaviour
 
         //Code from here only applies to the first player in splitscreeen
 
-        if (Input.GetKeyDown(KeyCode.K))
+        if (Input.GetKeyUp(KeyCode.K))
         {
             if(Time.timeScale == 0)
             {
@@ -77,10 +77,9 @@ public class PlayerAudioHandler : MonoBehaviour
             else
             {
                 Time.timeScale = 0;
-
             }
             //transform.position = new Vector3(9, 17, 30);
-            //GetComponent<Rigidbody>().velocity = Vector3.zero;
+            GetComponent<Rigidbody>().velocity = Vector3.zero;
         }
         Vector3 playerRelativeVelocity = playerMovement.GetRelativeVelocity();
         float ratio = playerRelativeVelocity.y / playerMovement.MaxFallSpeed;
@@ -115,17 +114,18 @@ public class PlayerAudioHandler : MonoBehaviour
         #endregion
         //Sphere overlap method
 
-        if (Physics.Raycast(transform.position,-transform.up,radius,worldStaticMask)) // return if anything directly below
-        {
-            return;
-        }
         Collider[] overLappingColliders = Physics.OverlapSphere(transform.position, radius, worldStaticMask);
         if (overLappingColliders.Length == 0)
         {
             return;
         }
+        closestPointsOnColliders.Clear();
+        for (int i = 0; i < overLappingColliders.Length; i++)
+        {
+            closestPointsOnColliders.Add(overLappingColliders[i].ClosestPoint(transform.position));
+        }
         float downwardsRayRange = 15f;
-        float distToGroundRatio = 1f;// set to one so if in air and ray below is hitting nothing, the windsources shuld play full volume
+        float distToGroundRatio = 1f; // set to one so if in air and ray below is hitting nothing, the windsources shuld play full volume
         RaycastHit downwardsHit;
         
         if(Physics.Raycast(transform.position, -transform.up, out downwardsHit, downwardsRayRange, worldStaticMask))
@@ -138,11 +138,13 @@ public class PlayerAudioHandler : MonoBehaviour
         float playerYVelocityRatio = Mathf.Lerp(0, 1f, playerRelativeVelocity.y / playerMovement.MaxFallSpeed);
         float targetVolume = playerYVelocityRatio * distToGroundRatio;
         //print(targetVolume);
+        //sort the colliders based on the distance from their closest point to the players position!!!!!!!!!!!!!!
+        closestPointsOnColliders.Sort((a, b) => (a - transform.position).magnitude.CompareTo((b - transform.position).magnitude));
         // Update the list of closest hits
-        for (int i = 0; i < overLappingColliders.Length; i++)
+        for (int i = 0; i < closestPointsOnColliders.Count; i++)
         {
             
-            Vector3 closestPosOnCollider = overLappingColliders[i].ClosestPoint(transform.position);
+            Vector3 closestPosOnCollider = closestPointsOnColliders[i];
             if (i == windAudioSources.Count)
                 break;
             //if (!isWithinHeightRange(closestPosOnCollider))
@@ -153,21 +155,23 @@ public class PlayerAudioHandler : MonoBehaviour
             float relativeYDifference = transform.InverseTransformPoint(transform.position).y - transform.InverseTransformPoint(closestPosOnCollider).y;
 
             float relativeYDifferenceRatio = Mathf.Lerp(1f, 0f, Mathf.Abs(relativeYDifference) / (radius));
+
+            float distanceFromPlayer = Vector3.Distance(transform.position, closestPosOnCollider);
+            float distanceRatio = Mathf.Lerp(1f, 0f, distanceFromPlayer / radius);
             windAudioSources[i].GetComponent<test>().distanceFromPlayerY = relativeYDifference;
             windAudioSources[i].GetComponent<test>().RelativeYDifferenceRatio = relativeYDifferenceRatio;
-            windAudioSources[i].GetComponent<test>().thing = relativeYDifference / (radius);
-            windAudioSources[i].GetComponent<test>().thing = relativeYDifference / (radius);
+            windAudioSources[i].GetComponent<test>().distanceRatio = distanceRatio;
 
-            float newTargetVolume = targetVolume * relativeYDifferenceRatio;
+            float newTargetVolume = targetVolume * relativeYDifferenceRatio * distanceRatio;
             if (windAudioSources[i].GetComponent<test>().debug)
             {
 
             }
             windAudioSources[i].GetComponent<test>().targetVol = newTargetVolume;
 
-            windAudioSources[i].volume =  Mathf.Lerp(windAudioSources[i].volume, newTargetVolume, 150f * Time.deltaTime);
-            //windAudioSources[i].volume = targetVolume;
-            //windAudioSources[i].volume = Mathf.Lerp(fallingAudioSource.volume, windVolumeRatio, volumeLerpSpeed * Time.deltaTime);
+            windAudioSources[i].volume =  Mathf.Lerp(windAudioSources[i].volume, newTargetVolume, 100f * Time.deltaTime);
+            //windAudioSources[i].volume = newTargetVolume;
+
             windAudioSources[i].transform.position = closestPosOnCollider;
             //Get the distance between the  co-oridinates of  the player and the closest point on the collider that the audio source is attached to
             
@@ -176,11 +180,7 @@ public class PlayerAudioHandler : MonoBehaviour
             Debug.DrawLine(transform.position, closestPosOnCollider, Color.red);
             //colliders.Add(overLappingColliders[i]);
         }
-
-        //sort the colliders based on the distance from their closest point to the players position!!!!!!!!!!!!!!
-        //closestColliders.Sort((a, b) => 
-        //(a.ClosestPoint(transform.position) - transform.position).magnitude.CompareTo
-        //((b.ClosestPoint(transform.position) - transform.position).magnitude));
+        
 
         //int numClosestHits = Mathf.Min(maxCollidersToListenTo, colliders.Count);
 

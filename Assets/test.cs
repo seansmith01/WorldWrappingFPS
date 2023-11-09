@@ -6,7 +6,7 @@ public class test : MonoBehaviour
 {
     public float distanceFromPlayerY;
     public float RelativeYDifferenceRatio;
-    public float thing;
+    public float distanceRatio;
     public float targetVol;
     public bool debug;
 }
