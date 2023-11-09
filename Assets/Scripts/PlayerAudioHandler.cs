@@ -5,10 +5,8 @@ using UnityEngine;
 
 public class PlayerAudioHandler : MonoBehaviour
 {
-    public bool IsFirstPlayerLocal;
-
     private PlayerMovement playerMovement;
-
+    private PlayerLocalManager playerLocalManager;
     [Header("Misc")]
     [SerializeField] private OneShotAudioHolder oneShotAudioHolder;
     [SerializeField] LayerMask mask;
@@ -39,8 +37,9 @@ public class PlayerAudioHandler : MonoBehaviour
     private void Start()
     {
         playerMovement = GetComponent<PlayerMovement>();
+        playerLocalManager = GetComponent<PlayerLocalManager>();
 
-        if (IsFirstPlayerLocal)
+        if (playerLocalManager.IsFirstPlayerLocal)
         {
             GameObject pool = Instantiate(new GameObject("AudioSourcePool"));
             for (int i = 0; i < maxCollidersToListenTo; i++)
@@ -83,7 +82,7 @@ public class PlayerAudioHandler : MonoBehaviour
         }
         
 
-        if (!IsFirstPlayerLocal)
+        if (!playerLocalManager.IsFirstPlayerLocal)
         {
             return;
         }
@@ -280,7 +279,7 @@ public class PlayerAudioHandler : MonoBehaviour
             // Check if enough time has passed to play the next footstep sound
             if (Time.time - timeSinceLastFootstep >= Random.Range(minTimeBetweenFootsteps, maxTimeBetweenFootsteps))
             {
-                oneShotAudioHolder.PlayFootstepSound(IsFirstPlayerLocal);
+                oneShotAudioHolder.SetupFootstepSound(playerLocalManager.IsFirstPlayerLocal);
                 
 
                 timeSinceLastFootstep = Time.time; // Update the time since the last footstep sound

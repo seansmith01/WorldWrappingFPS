@@ -33,6 +33,7 @@ public class PlayerShooting : MonoBehaviour
     private PlayerDuplicateManager duplicateManager;
     private PlayerInput playerInput;
     private PlayerMovement playerMovement;
+    private PlayerLocalManager playerLocalManager;
     private LevelRepeater levelRepeater;
     private int playerID;
 
@@ -47,12 +48,13 @@ public class PlayerShooting : MonoBehaviour
         playerInput= GetComponent<PlayerInput>();
         playerMovement = GetComponent<PlayerMovement>();
         duplicateManager = GetComponent<PlayerDuplicateManager>();
+        playerLocalManager = GetComponent<PlayerLocalManager>();
         levelRepeater = FindFirstObjectByType<LevelRepeater>();
        
     }
     void Start()
     {
-        playerID = GetComponent<PlayerLocalManager>().PlayerID; // Must be in start, as it is set in awake
+        playerID = playerLocalManager.PlayerID; // Must be in start, as it is set in awake
     }
    
     void Update()
@@ -68,7 +70,7 @@ public class PlayerShooting : MonoBehaviour
         {
             FireRaycast(camHolder.position, gunRange, 0f);
 
-            oneShotAudioHolder.PlayShootSound();
+            oneShotAudioHolder.SetupShootSound(playerLocalManager.IsFirstPlayerLocal);
 
             timeAtLastShot = Time.time;
         }

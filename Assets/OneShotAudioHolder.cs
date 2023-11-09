@@ -23,16 +23,47 @@ public class OneShotAudioHolder : MonoBehaviour
     [SerializeField] private AudioClip[] rotationClips;
     [SerializeField] private float minRotationVolume = 0.3f;
     [SerializeField] private float maxRotationVolume = 0.6f;
+
+    public void Start()
+    {
+        if (transform.root.GetComponent<PlayerDuplicateManager>() != null)
+        {
+            duplicateManager = transform.root.GetComponent<PlayerDuplicateManager>();
+        }
+    }
+    public void SetupShootSound(bool isLocalPlayer)
+    {
+        if (duplicateManager==null)
+        {
+            Debug.LogWarning("duplicate manager not found");
+            return;
+        }
+        if (isLocalPlayer)
+        {
+            for (int i = 0; i < duplicateManager.DuplicateControllers.Count; i++)
+            {
+                duplicateManager.DuplicateControllers[i].OneShotAudioHolder.PlayShootSound();
+            }
+            gunshotAudioSource.spatialBlend = 0;
+            PlayShootSound(); // can play at volume for local player
+        }
+        else
+        {
+            for (int i = 0; i < duplicateManager.DuplicateControllers.Count; i++)
+            {
+                duplicateManager.DuplicateControllers[i].OneShotAudioHolder.PlayShootSound();
+            }
+            gunshotAudioSource.spatialBlend = 1;
+            PlayShootSound();
+        }
+    }
     public void PlayShootSound()
     {
-        //for (int i = 0; i < duplicateManager.DuplicateControllers.Count; i++)
-        //{
-           // duplicateManager.du
-        //}
-        gunshotAudioSource.pitch=Random.Range(0.9f, 1.1f);
+        gunshotAudioSource.pitch = Random.Range(0.9f, 1.1f);
         gunshotAudioSource.PlayOneShot(gunshotClips[Random.Range(0, gunshotClips.Length)]);
         gunshotAudioSource.pitch = 1f;
     }
+
     public void PlayRotationSound()
     {
         AudioClip rotationSound = rotationClips[Random.Range(0, rotationClips.Length)];
@@ -49,21 +80,36 @@ public class OneShotAudioHolder : MonoBehaviour
         }
 
     }
-    public void PlayFootstepSound(bool isLocalPlayer)
+    public void SetupFootstepSound(bool isLocalPlayer)
     {
-        AudioClip footstepSound = footstepClips[Random.Range(0, footstepClips.Length)];
+        if (duplicateManager == null)
+        {
+            Debug.LogWarning("duplicate manager not found");
+            return;
+        }
         if (isLocalPlayer)
         {
+            for (int i = 0; i < duplicateManager.DuplicateControllers.Count; i++)
+            {
+                duplicateManager.DuplicateControllers[i].OneShotAudioHolder.PlayFootstepSound();
+            }
             footstepAudioSource.spatialBlend = 0;
-            float footstepVolume = Random.Range(localMinFootstepVolume, localMaxFootstepVolume);
-            footstepAudioSource.PlayOneShot(footstepSound, footstepVolume);
+            PlayFootstepSound(); // can play at volume for local player
         }
         else
         {
+            for (int i = 0; i < duplicateManager.DuplicateControllers.Count; i++)
+            {
+                duplicateManager.DuplicateControllers[i].OneShotAudioHolder.PlayFootstepSound();
+            }
             footstepAudioSource.spatialBlend = 1;
-            float footstepVolume = Random.Range(nonlocalMinFootstepVolume, nonlocalMaxFootstepVolume);
-            footstepAudioSource.PlayOneShot(footstepSound, footstepVolume);
+            PlayFootstepSound();
         }
-        
+    }
+    void PlayFootstepSound()
+    {
+        AudioClip footstepSound = footstepClips[Random.Range(0, footstepClips.Length)];
+        float footstepVolume = Random.Range(localMinFootstepVolume, localMaxFootstepVolume);
+        footstepAudioSource.PlayOneShot(footstepSound, footstepVolume);
     }
 }

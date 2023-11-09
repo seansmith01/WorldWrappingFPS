@@ -6,6 +6,7 @@ public class PlayerLocalManager : MonoBehaviour
 {
     GameManager gameManager;
     public int PlayerID;
+    public bool IsFirstPlayerLocal;
 
     [Header("Player Meshes")]
     [SerializeField] MeshRenderer bodyMesh;
@@ -51,10 +52,10 @@ public class PlayerLocalManager : MonoBehaviour
         switch (PlayerID)
         {
             case 0: Debug.LogError("No Players"); break;
-            case 1: newMat = redMat; playerAudioHandler.IsFirstPlayerLocal = true; break;
-            case 2: newMat = blueMat; audioListener.enabled = false; playerAudioHandler.IsFirstPlayerLocal = false; break;
-            case 3: newMat = greenMat; audioListener.enabled = false; playerAudioHandler.IsFirstPlayerLocal = false; break;
-            case 4: newMat = yellowMat; audioListener.enabled = false; playerAudioHandler.IsFirstPlayerLocal = false; break;
+            case 1: newMat = redMat; IsFirstPlayerLocal = true; break;
+            case 2: newMat = blueMat; audioListener.enabled = false; IsFirstPlayerLocal = false; break;
+            case 3: newMat = greenMat; audioListener.enabled = false; IsFirstPlayerLocal = false; break;
+            case 4: newMat = yellowMat; audioListener.enabled = false; IsFirstPlayerLocal = false; break;
         }
         bodyMesh.material = newMat;
         headMesh.material = newMat;

@@ -6,7 +6,7 @@ using System.Collections;
 public class PlayerDuplicateManager : MonoBehaviour
 {
     [SerializeField] 
-    private GameObject meshToCopy;
+    private GameObject duplicatePrefab;
     [SerializeField] 
     private Transform cameraHolder;
 
@@ -53,7 +53,6 @@ public class PlayerDuplicateManager : MonoBehaviour
                 DuplicateControllers[j].transform.position = transform.position + offsets[j];
                 DuplicateControllers[j].transform.rotation = transform.rotation;
                 DuplicateControllers[j].CameraHolder.rotation = cameraHolder.rotation;
-                //Duplicates[j]
             }
         }
         
@@ -63,20 +62,17 @@ public class PlayerDuplicateManager : MonoBehaviour
         // If duplicate is in centre (where player is)
         if (dupOffset == Vector3.zero)
             return;
-        GameObject meshDup = Instantiate(meshToCopy, transform.position + dupOffset, transform.rotation);
+        GameObject meshDup = Instantiate(duplicatePrefab, transform.position + dupOffset, transform.rotation);
         meshDup.layer = LayerMask.NameToLayer("Player" + GetComponent<PlayerLocalManager>().PlayerID);
-        DuplicateController duplicateController = meshDup.AddComponent<DuplicateController>();
+        DuplicateController duplicateController = meshDup.GetComponent<DuplicateController>();
         duplicateController.PlayerNumber = playerLocalManager.PlayerID;
-        duplicateController.CameraHolder = meshDup.transform.Find("CameraHolder");
-        duplicateController.GunTip = meshDup.transform.Find("CameraHolder/Gun/GunTip");
-      
-
-        //destroy dup camera and audio listener
-        Destroy(meshDup.GetComponentInChildren<Camera>());
-        Destroy(meshDup.GetComponentInChildren<AudioListener>());
-        DuplicateControllers.Add(duplicateController);
-        offsets.Add(dupOffset);
         meshDup.transform.parent = duplicatesHolder.transform;
+        duplicateController.SetupColour();
+
+        DuplicateControllers.Add(duplicateController);
+
+        offsets.Add(dupOffset);
+
     }
     public void WrapTo(Vector3 newPos)
     {
@@ -85,4 +81,5 @@ public class PlayerDuplicateManager : MonoBehaviour
             DuplicateControllers[i].transform.position = newPos;
         }
     }
+
 }

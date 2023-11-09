@@ -145,7 +145,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1361623996}
-  - component: {fileID: 4696265158117733272}
   m_Layer: 0
   m_Name: PlayerShooting
   m_TagString: Untagged
@@ -170,102 +169,6 @@ Transform:
   - {fileID: 1669883345}
   m_Father: {fileID: 3840027863226486816}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!82 &4696265158117733272
-AudioSource:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1361623995}
-  m_Enabled: 1
-  serializedVersion: 4
-  OutputAudioMixerGroup: {fileID: 0}
-  m_audioClip: {fileID: 8300000, guid: 54973d8466c3e634b8ce1f77c54adf2e, type: 3}
-  m_PlayOnAwake: 0
-  m_Volume: 1
-  m_Pitch: 1
-  Loop: 0
-  Mute: 0
-  Spatialize: 0
-  SpatializePostEffects: 0
-  Priority: 128
-  DopplerLevel: 1
-  MinDistance: 1
-  MaxDistance: 500
-  Pan2D: 0
-  rolloffMode: 0
-  BypassEffects: 0
-  BypassListenerEffects: 0
-  BypassReverbZones: 0
-  rolloffCustomCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 1
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.33333334
-    - serializedVersion: 3
-      time: 1
-      value: 0
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.33333334
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  panLevelCustomCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 0
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.33333334
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  spreadCustomCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 0
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.33333334
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  reverbZoneMixCustomCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 1
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.33333334
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
 --- !u!1 &1669883344
 GameObject:
   m_ObjectHideFlags: 0
@@ -542,6 +445,7 @@ MonoBehaviour:
   greenMat: {fileID: 2100000, guid: 13e5c2920da8d1e47b84c398abcb178d, type: 2}
   yellowMat: {fileID: 2100000, guid: a273660d0ad22664ba5012c4e6ac3401, type: 2}
   audioListener: {fileID: 5356843145871756416}
+  playerAudioHandler: {fileID: 0}
   meshes:
   - {fileID: 1430342185722768088}
   - {fileID: 3840027864061956984}
@@ -552,7 +456,7 @@ MonoBehaviour:
   - {fileID: 4692342948775373007}
   playerMovement: {fileID: 3840027863226486831}
   cameraController: {fileID: 7224105872520467100}
-  rigidbody: {fileID: 2988639713817915477}
+  rb: {fileID: 0}
 --- !u!114 &3840027863226486831
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -579,7 +483,7 @@ MonoBehaviour:
   downForceBeforeApex: 30
   downForceAfterApex: 50
   downForceWhenRotating: 100
-  maxFallSpeed: -35
+  MaxFallSpeed: 0
   airMultiplier: 1
   jumpForce: 30
   jumpCooldown: 0.5
@@ -634,6 +538,7 @@ MonoBehaviour:
   bullet: {fileID: 4310804975005026669, guid: fdc5f94e0dbd3e54cae87f9796612a6a, type: 3}
   lineRendererDuration: 0.5
   impactPointGO: {fileID: 4310804975005026669, guid: 235269c36688b4d46bb8e87696bd1cc2, type: 3}
+  shootCooldown: 1
 --- !u!114 &7224105872520467100
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -663,13 +568,26 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e1dbd56ff5143d94aa24561ddc108767, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  freeFallAudioSource: {fileID: 1631540891499945299, guid: d4b50b8e516db784bae79fdd2f606c7c, type: 3}
+  IsFirstPlayerLocal: 0
+  oneShotAudioHolder: {fileID: 0}
+  mask:
+    serializedVersion: 2
+    m_Bits: 0
+  colliderFreeFallAudioSource: {fileID: 0}
   radius: 50
   maxCollidersToListenTo: 3
   worldStaticMask:
     serializedVersion: 2
     m_Bits: 64
-  closestColliders: []
+  playerFallingAudioSource: {fileID: 0}
+  playerMinFallingWindVolume: 0
+  playerMaxFallingWindVolume: 0
+  otherPlayerMinFallingWindVolume: 0
+  otherPlayerMaxFallingWindVolume: 0
+  playerFallVolumeLerpSpeed: 2
+  minTimeBetweenFootsteps: 0.3
+  maxTimeBetweenFootsteps: 0.6
+  closestPointsOnColliders: []
 --- !u!136 &3840027863226486821
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -1837,9 +1755,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d8eb75e999ab9f34a970d788794dbadf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  audioSource: {fileID: 4043605477970569785}
+  IsLocalPlayer: 0
+  gunshotAudioSource: {fileID: 0}
   gunshotClips:
   - {fileID: 8300000, guid: 54973d8466c3e634b8ce1f77c54adf2e, type: 3}
+  footstepAudioSource: {fileID: 0}
+  footstepClips: []
+  localMinFootstepVolume: 0.3
+  localMaxFootstepVolume: 0.6
+  nonlocalMinFootstepVolume: 1
+  nonlocalMaxFootstepVolume: 1
+  landClip: {fileID: 0}
+  rotationAudioSource: {fileID: 0}
+  rotationClips: []
+  minRotationVolume: 0.3
+  maxRotationVolume: 0.6
 --- !u!1 &8168188495833599699
 GameObject:
   m_ObjectHideFlags: 0
