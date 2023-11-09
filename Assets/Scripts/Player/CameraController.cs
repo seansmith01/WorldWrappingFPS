@@ -62,15 +62,20 @@ public class CameraController : MonoBehaviour
             }
             Cursor.visible = !Cursor.visible;
         }
-        
+
+        float x = lookInput.x * sensX * Time.deltaTime;
+        transform.Rotate(new Vector3(0, x, 0), Space.Self);
     }
-    float rotY;
+    float rotX, rotY;
     Vector2 lookInput;
     void RotateMainCamera()
     {
         lookInput = playerInput.actions["Look"].ReadValue<Vector2>();
-        lookInput.x *= sensX * Time.deltaTime;
-        transform.Rotate(new Vector3(0, lookInput.x, 0), Space.Self);
+        
+
+        //rotX += lookInput.x * sensX * Time.deltaTime;
+        //transform.rotation = Quaternion.Euler(transform.rotation.x, rotX, transform.rotation.z);
+
 
         rotY += lookInput.y * sensY * Time.deltaTime;
         rotY = Mathf.Clamp(rotY, -90f, 90f);
