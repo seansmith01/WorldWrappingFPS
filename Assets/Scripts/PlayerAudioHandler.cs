@@ -54,6 +54,7 @@ public class PlayerAudioHandler : MonoBehaviour
     // In your Update method:
     void Update()
     {
+
         if (playerMovement.IsGrounded)
         {
             FootstepSounds();
@@ -68,8 +69,18 @@ public class PlayerAudioHandler : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.K))
         {
-            transform.position = new Vector3(9, 17, 30);
-            GetComponent<Rigidbody>().velocity = Vector3.zero;
+            if(Time.timeScale == 0)
+            {
+                Time.timeScale = 1;
+
+            }
+            else
+            {
+                Time.timeScale = 0;
+
+            }
+            //transform.position = new Vector3(9, 17, 30);
+            //GetComponent<Rigidbody>().velocity = Vector3.zero;
         }
         Vector3 playerRelativeVelocity = playerMovement.GetRelativeVelocity();
         float ratio = playerRelativeVelocity.y / playerMovement.MaxFallSpeed;
@@ -141,12 +152,20 @@ public class PlayerAudioHandler : MonoBehaviour
             windAudioSources[i].gameObject.SetActive(true);
             float relativeYDifference = transform.InverseTransformPoint(transform.position).y - transform.InverseTransformPoint(closestPosOnCollider).y;
 
-            float relativeYDifferenceRatio = Mathf.Lerp(1, 0, Mathf.Abs(relativeYDifference) / (radius / 2f));
+            float relativeYDifferenceRatio = Mathf.Lerp(1f, 0f, Mathf.Abs(relativeYDifference) / (radius));
             windAudioSources[i].GetComponent<test>().distanceFromPlayerY = relativeYDifference;
-            windAudioSources[i].GetComponent<test>().VolumeMultiplierDependingOnDistanceInThePlayersRelativeUpAxis = relativeYDifferenceRatio;
-            //targetVolume *= relativeYDifferenceRatio;
+            windAudioSources[i].GetComponent<test>().RelativeYDifferenceRatio = relativeYDifferenceRatio;
+            windAudioSources[i].GetComponent<test>().thing = relativeYDifference / (radius);
+            windAudioSources[i].GetComponent<test>().thing = relativeYDifference / (radius);
 
-            windAudioSources[i].volume =  Mathf.Lerp(windAudioSources[i].volume, targetVolume, 150f * Time.deltaTime);
+            float newTargetVolume = targetVolume * relativeYDifferenceRatio;
+            if (windAudioSources[i].GetComponent<test>().debug)
+            {
+
+            }
+            windAudioSources[i].GetComponent<test>().targetVol = newTargetVolume;
+
+            windAudioSources[i].volume =  Mathf.Lerp(windAudioSources[i].volume, newTargetVolume, 150f * Time.deltaTime);
             //windAudioSources[i].volume = targetVolume;
             //windAudioSources[i].volume = Mathf.Lerp(fallingAudioSource.volume, windVolumeRatio, volumeLerpSpeed * Time.deltaTime);
             windAudioSources[i].transform.position = closestPosOnCollider;
