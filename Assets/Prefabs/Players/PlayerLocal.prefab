@@ -445,7 +445,7 @@ MonoBehaviour:
   downForceWhenRotating: 100
   MaxFallSpeed: -35
   airMultiplier: 1
-  jumpForce: 25
+  jumpForce: 30
   jumpCooldown: 0.5
   coyoteTimeDuration: 0.2
   jumpBufferDuration: 0.2
@@ -498,7 +498,7 @@ MonoBehaviour:
   bullet: {fileID: 4310804975005026669, guid: fdc5f94e0dbd3e54cae87f9796612a6a, type: 3}
   lineRendererDuration: 0.5
   impactPointGO: {fileID: 4310804975005026669, guid: 235269c36688b4d46bb8e87696bd1cc2, type: 3}
-  shootCooldown: 1
+  shootCooldown: 0.2
 --- !u!114 &7224105872520467100
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -540,7 +540,7 @@ MonoBehaviour:
     m_Bits: 64
   playerFallingAudioSource: {fileID: 2071596766673835050}
   playerMinFallingWindVolume: 0.2
-  playerMaxFallingWindVolume: 0.5
+  playerMaxFallingWindVolume: 0.3
   otherPlayerMinFallingWindVolume: 0
   otherPlayerMaxFallingWindVolume: 1
   playerFallVolumeLerpSpeed: 2
