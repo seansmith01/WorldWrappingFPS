@@ -641,7 +641,7 @@ MonoBehaviour:
   - {fileID: 4692342948775373007}
   playerMovement: {fileID: 3840027863226486831}
   cameraController: {fileID: 7224105872520467100}
-  rb: {fileID: 0}
+  rb: {fileID: 2988639713817915477}
 --- !u!114 &3840027863226486831
 MonoBehaviour:
   m_ObjectHideFlags: 0
