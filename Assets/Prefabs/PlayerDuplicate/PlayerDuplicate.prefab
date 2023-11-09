@@ -84,6 +84,7 @@ MonoBehaviour:
   CameraHolder: {fileID: 7105373998655432928}
   GunTip: {fileID: 3840027864682742754}
   OneShotAudioHolder: {fileID: 5413707619415232083}
+  FallingAudioSource: {fileID: 8659370723638568356}
   redMat: {fileID: 2100000, guid: 3040cad2e9b34bc44b0e7a7841e918c6, type: 2}
   blueMat: {fileID: 2100000, guid: ea9507634de681b45b24c49c346d8970, type: 2}
   greenMat: {fileID: 2100000, guid: 13e5c2920da8d1e47b84c398abcb178d, type: 2}
@@ -835,3 +836,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d8eb75e999ab9f34a970d788794dbadf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!82 &8659370723638568356 stripped
+AudioSource:
+  m_CorrespondingSourceObject: {fileID: 9154218621740500840, guid: 7dc0270a07923fb44bf93d6d0a04e3f5, type: 3}
+  m_PrefabInstance: {fileID: 515119680986227404}
+  m_PrefabAsset: {fileID: 0}

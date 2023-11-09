@@ -112,4 +112,5 @@ public class OneShotAudioHolder : MonoBehaviour
         float footstepVolume = Random.Range(localMinFootstepVolume, localMaxFootstepVolume);
         footstepAudioSource.PlayOneShot(footstepSound, footstepVolume);
     }
+
 }

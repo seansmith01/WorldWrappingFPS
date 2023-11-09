@@ -7,6 +7,7 @@ public class PlayerAudioHandler : MonoBehaviour
 {
     private PlayerMovement playerMovement;
     private PlayerLocalManager playerLocalManager;
+    private PlayerDuplicateManager duplicateManager;
     [Header("Misc")]
     [SerializeField] private OneShotAudioHolder oneShotAudioHolder;
     [SerializeField] LayerMask mask;
@@ -38,6 +39,7 @@ public class PlayerAudioHandler : MonoBehaviour
     {
         playerMovement = GetComponent<PlayerMovement>();
         playerLocalManager = GetComponent<PlayerLocalManager>();
+        duplicateManager = GetComponent<PlayerDuplicateManager>();
 
         if (playerLocalManager.IsFirstPlayerLocal)
         {
@@ -76,10 +78,8 @@ public class PlayerAudioHandler : MonoBehaviour
             playerFallingAudioSource.volume = 0f;
 
         }
-        else
-        {
-            InAirSounds(playerRelativeVelocity.y);
-        }
+        InAirSounds(playerRelativeVelocity.y);
+
         
 
         if (!playerLocalManager.IsFirstPlayerLocal)
@@ -269,7 +269,19 @@ public class PlayerAudioHandler : MonoBehaviour
     void InAirSounds(float relVelocityY)
     {
         float fallVolumeRatio = Mathf.Lerp(currentMinFallingWindVolume, currentMaxFallingWindVolume, relVelocityY / playerMovement.MaxFallSpeed);
-        playerFallingAudioSource.volume = Mathf.Lerp(playerFallingAudioSource.volume, fallVolumeRatio, playerFallVolumeLerpSpeed * Time.deltaTime);
+        float newVolume = Mathf.Lerp(playerFallingAudioSource.volume, fallVolumeRatio, playerFallVolumeLerpSpeed * Time.deltaTime);
+        playerFallingAudioSource.volume = newVolume;
+
+        if (duplicateManager == null)
+        {
+            Debug.LogWarning("duplicate manager not found");
+            return;
+        }
+        for (int i = 0; i < duplicateManager.DuplicateControllers.Count; i++)
+        {
+            duplicateManager.DuplicateControllers[i].FallingAudioSource.volume = newVolume;
+        }
+
     }
     void FootstepSounds()
     {

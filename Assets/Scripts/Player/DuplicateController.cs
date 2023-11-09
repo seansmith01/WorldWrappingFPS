@@ -10,6 +10,7 @@ public class DuplicateController : MonoBehaviour
     public Transform CameraHolder;
     public Transform GunTip;
     public OneShotAudioHolder OneShotAudioHolder;
+    public AudioSource FallingAudioSource;
 
     [Header("Player Materials")]
     [SerializeField] Material redMat;
@@ -26,7 +27,7 @@ public class DuplicateController : MonoBehaviour
         {
             case 0: Debug.LogError("No Players"); break;
             case 1: newMat = redMat; ; break;
-            case 2: newMat = blueMat; break;
+            case 2: newMat = blueMat;  break;
             case 3: newMat = greenMat;  break;
             case 4: newMat = yellowMat; break;
         }
