@@ -22,11 +22,11 @@ public class PlayerShooting : MonoBehaviour
     [SerializeField] LineRenderer grappleLineRenderer;
     [SerializeField] LineRenderer shootLineRenderer;
 
-    [Header("Grapple Settings")]
-    [SerializeField] LayerMask whatIsGrappleable;
-    private Vector3 grapplePoint;
-    private Vector3 currentGrapplePosition;
-    private SpringJoint joint;
+    //[Header("Grapple Settings")]
+    //[SerializeField] LayerMask whatIsGrappleable;
+    //private Vector3 grapplePoint;
+    //private Vector3 currentGrapplePosition;
+    //private SpringJoint joint;
 
     [Header("Player Components")]
     private PlayerDuplicateManager duplicateManager;
@@ -39,7 +39,7 @@ public class PlayerShooting : MonoBehaviour
     [Header("Shooting")]
     [SerializeField] GameObject bullet;
     [SerializeField] float lineRendererDuration;
-    private LayerMask mask;
+    public LayerMask mask;
     [SerializeField] GameObject impactPointGO;
 
     void Awake()
@@ -120,14 +120,14 @@ public class PlayerShooting : MonoBehaviour
                 Vector3 floorSurface;
                 floorSurface = hit.normal;
                 //check is not the same surface as one standing on
-                if (Vector3.Dot(transform.up, floorSurface) < Mathf.Cos(45 * Mathf.Deg2Rad))
+                //if (Vector3.Dot(transform.up, floorSurface) < Mathf.Cos(45 * Mathf.Deg2Rad))
                 {
                     playerMovement.ChangeRotation(floorSurface, hit.point);
                 }
             }
         }
     }
-
+    [SerializeField] LayerMask IgnoreAswellasSelf;
     void FireRaycast(Vector3 startRayPos, float rayRange, float totalRayDistance)
     {
         // Get the spacing values for repeated objects
@@ -139,9 +139,11 @@ public class PlayerShooting : MonoBehaviour
         RaycastHit hit;
 
         // Create a layer mask to control what the ray interacts with
-        mask = 1 << gameObject.layer; // Excludes the player's own layer from the raycast
+        //mask = (1 << gameObject.layer) | (1 << IgnoreAswellasSelf); // Excludes the player's own layer from the raycast
+        //mask = LayerMask.GetMask(gameObject.layer.ToString(), IgnoreAswellasSelf.ToString());
+        mask = LayerMask.GetMask(LayerMask.LayerToName(gameObject.layer), "ReverbTrigger");
         mask = ~mask;
-
+        
         // Perform a raycast from the startRayPos in the camera's forward direction
         if (Physics.Raycast(startRayPos, camHolder.forward, out hit, rayRange, mask))
         {
@@ -346,76 +348,76 @@ public class PlayerShooting : MonoBehaviour
         Destroy(lr.gameObject);
     }
     //Called after Update
-    void LateUpdate()
-    {
-        DrawRope();
-    }
+    //void LateUpdate()
+    //{
+    //    DrawRope();
+    //}
 
     /// <summary>
     /// Call whenever we want to start a grapple
     /// </summary>
-    void StartGrapple(RaycastHit hit)
-    {
-        grapplePoint = hit.point;
-        joint = gameObject.AddComponent<SpringJoint>();
-        joint.autoConfigureConnectedAnchor = false;
-        joint.connectedAnchor = grapplePoint;
+    //void StartGrapple(RaycastHit hit)
+    //{
+    //    grapplePoint = hit.point;
+    //    joint = gameObject.AddComponent<SpringJoint>();
+    //    joint.autoConfigureConnectedAnchor = false;
+    //    joint.connectedAnchor = grapplePoint;
 
-        float distanceFromPoint = Vector3.Distance(transform.position, grapplePoint);
+    //    float distanceFromPoint = Vector3.Distance(transform.position, grapplePoint);
 
-        //The distance grapple will try to keep from grapple point. 
-        joint.maxDistance = distanceFromPoint * 0.5f;
-        joint.minDistance = distanceFromPoint * 0.25f;
+    //    //The distance grapple will try to keep from grapple point. 
+    //    joint.maxDistance = distanceFromPoint * 0.5f;
+    //    joint.minDistance = distanceFromPoint * 0.25f;
 
-        //Adjust these values to fit your game.
-        joint.spring = 4.5f;
-        joint.damper = 7f;
-        joint.massScale = 4.5f;
+    //    //Adjust these values to fit your game.
+    //    joint.spring = 4.5f;
+    //    joint.damper = 7f;
+    //    joint.massScale = 4.5f;
 
-        grappleLineRenderer.positionCount = 2;
-        currentGrapplePosition = gunTip.position;
-    }
+    //    grappleLineRenderer.positionCount = 2;
+    //    currentGrapplePosition = gunTip.position;
+    //}
 
 
     /// <summary>
     /// Call whenever we want to stop a grapple
     /// </summary>
-    void StopGrapple()
-    {
-        grappleLineRenderer.positionCount = 0;
-        Destroy(joint);
-    }
+    //void StopGrapple()
+    //{
+    //    grappleLineRenderer.positionCount = 0;
+    //    Destroy(joint);
+    //}
 
 
-    void DrawRope()
-    {
-        //If not grappling, don't draw rope
-        if (!joint) return;
+    //void DrawRope()
+    //{
+    //    //If not grappling, don't draw rope
+    //    if (!joint) return;
 
-        currentGrapplePosition = Vector3.Lerp(currentGrapplePosition, grapplePoint, Time.deltaTime * 8f);
+    //    currentGrapplePosition = Vector3.Lerp(currentGrapplePosition, grapplePoint, Time.deltaTime * 8f);
 
-        grappleLineRenderer.SetPosition(0, gunTip.position);
-        grappleLineRenderer.SetPosition(1, currentGrapplePosition);
-    }
+    //    grappleLineRenderer.SetPosition(0, gunTip.position);
+    //    grappleLineRenderer.SetPosition(1, currentGrapplePosition);
+    //}
 
-    public bool IsGrappling()
-    {
-        return joint != null;
-    }
+    //public bool IsGrappling()
+    //{
+    //    return joint != null;
+    //}
 
-    public Vector3 GetGrapplePoint()
-    {
-        return grapplePoint;
-    }
+    //public Vector3 GetGrapplePoint()
+    //{
+    //    return grapplePoint;
+    //}
 
-    public void SetGrapplingPoint(Vector3 newGrapplePoint)
-    {
-        Vector3 diff = newGrapplePoint - grapplePoint;
+    //public void SetGrapplingPoint(Vector3 newGrapplePoint)
+    //{
+    //    Vector3 diff = newGrapplePoint - grapplePoint;
 
-        grapplePoint = newGrapplePoint;
-        joint.connectedAnchor = grapplePoint;
+    //    grapplePoint = newGrapplePoint;
+    //    joint.connectedAnchor = grapplePoint;
 
-        currentGrapplePosition += diff;
-    }
+    //    currentGrapplePosition += diff;
+    //}
 
 }

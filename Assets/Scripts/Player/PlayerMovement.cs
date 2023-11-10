@@ -403,8 +403,8 @@ public class PlayerMovement : MonoBehaviour
         // move players grappling hook
         PlayerShooting playerShooting = GetComponentInChildren<PlayerShooting>();
 
-        if (playerShooting.IsGrappling())
-            playerShooting.SetGrapplingPoint(playerShooting.GetGrapplePoint() + diff);
+        //if (playerShooting.IsGrappling())
+        //    playerShooting.SetGrapplingPoint(playerShooting.GetGrapplePoint() + diff);
     }
     private bool isGrounded()
     {

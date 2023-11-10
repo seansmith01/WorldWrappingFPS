@@ -10,6 +10,8 @@ public class AudioReverbTrigger : MonoBehaviour
     {
         largeReverbZone.enabled = true;
         smallReverrbZone.enabled = false;
+
+        GetComponent<MeshRenderer>().enabled = false;
     }
 
     private void OnTriggerEnter(Collider other)

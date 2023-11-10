@@ -491,13 +491,13 @@ MonoBehaviour:
   maxRotateDistance: 20
   grappleLineRenderer: {fileID: 493240653}
   shootLineRenderer: {fileID: 1669883346}
-  whatIsGrappleable:
-    serializedVersion: 2
-    m_Bits: 4294967295
   bullet: {fileID: 4310804975005026669, guid: fdc5f94e0dbd3e54cae87f9796612a6a, type: 3}
   lineRendererDuration: 0.5
   impactPointGO: {fileID: 4310804975005026669, guid: 235269c36688b4d46bb8e87696bd1cc2, type: 3}
   shootCooldown: 0.2
+  IgnoreAswellasSelf:
+    serializedVersion: 2
+    m_Bits: 256
 --- !u!114 &7224105872520467100
 MonoBehaviour:
   m_ObjectHideFlags: 0
