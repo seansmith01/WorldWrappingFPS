@@ -14,7 +14,7 @@ public class BulletProjectileScript : MonoBehaviour
         levelRepeater = FindFirstObjectByType<LevelRepeater>();
 
         
-        Destroy(gameObject, timeTillDestory);
+        //Destroy(gameObject, timeTillDestory);
         float repeatSpacing = levelRepeater.RepeatSpacing.x; //temp
         //float repeatAmount = levelRepeater.repeatAmount - 1; // one less of the worl repeats
         float repeatAmount = levelRepeater.RepeatAmount; // one less of the worl repeats
@@ -25,7 +25,7 @@ public class BulletProjectileScript : MonoBehaviour
             {
                 for (float z = -repeatSpacing * repeatAmount; z <= repeatAmount * repeatSpacing; z += repeatSpacing)
                 {
-                    SpawnDupPrefab(new Vector3(x, y, z));
+                   // SpawnDupPrefab(new Vector3(x, y, z));
                 }
             }
         }
@@ -36,6 +36,8 @@ public class BulletProjectileScript : MonoBehaviour
         meshDup.transform.parent = transform;
     }
     float timeSinceShot;
+    [SerializeField] Vector3 lastPosition;
+    [SerializeField] Vector3 fakeVelocity;
     private void Update()
     {
         timeSinceShot += Time.deltaTime;
@@ -45,6 +47,17 @@ public class BulletProjectileScript : MonoBehaviour
         }
         transform.position += transform.forward * Time.deltaTime * speed;
         WrapCheck();
+
+
+        var currentPosition = transform.position;
+        if (currentPosition != lastPosition)
+        {
+            fakeVelocity = (transform.position - lastPosition) / Time.deltaTime;
+            //Do something
+        }
+
+        lastPosition = currentPosition;
+
     }
     void WrapCheck()
     {
@@ -81,12 +94,13 @@ public class BulletProjectileScript : MonoBehaviour
     void WrapTo(Vector3 newPos)
     {
 
+        transform.position = newPos;
+        return;
         foreach (ParticleSystem t in GetComponentsInChildren<ParticleSystem>()) //actually seems to work?!!!
         {
             var l = t.main;
             l.simulationSpace = ParticleSystemSimulationSpace.Local;
         }
-        transform.position = newPos;
         foreach (ParticleSystem t in GetComponentsInChildren<ParticleSystem>())
         {
             var l = t.main;
@@ -96,28 +110,45 @@ public class BulletProjectileScript : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (firedForXTime)
-        {
-            if (transform.parent == null)
-            {
-                Destroy(gameObject);
-
-            }
-            Destroy(transform.root.gameObject);
-        }
+        //if (firedForXTime)
+        //{
+        //    if (transform.parent == null)
+        //    {
+        //        Destroy(gameObject);
+        //
+        //    }
+        //    Destroy(transform.root.gameObject);
+        //}
     }
     private void OnCollisionEnter(Collision collision)
     {
-        if (firedForXTime)
+        if (collision.collider.TryGetComponent<Rigidbody>(out Rigidbody rb))
         {
-            if(transform.parent == null)
-            {
-                Destroy(gameObject);
-
-            }
-            Destroy(transform.root.gameObject);
-
+            //rb.GetComponent<PlayerMovement>().SetRelativeVelocity(fakeVelocity);
+            //print(rb.gameObject);
+            rb.velocity = fakeVelocity;
+            //rb.velocity = fakeVelocity;
         }
+    }
+    private void OnCollisionStay(Collision collision)
+    {
+        if(collision.collider.TryGetComponent<Rigidbody>(out Rigidbody rb))
+        {
+            //rb.GetComponent<PlayerMovement>().SetRelativeVelocity(fakeVelocity);
+            print(rb.gameObject);
+            rb.AddForce(fakeVelocity /4f, ForceMode.VelocityChange);
+            //rb.velocity = fakeVelocity;
+        }
+        //if (firedForXTime)
+        //{
+        //    if(transform.parent == null)
+        //    {
+        //        Destroy(gameObject);
+        //
+        //    }
+        //    Destroy(transform.root.gameObject);
+        //
+        //}
 
     }
 }

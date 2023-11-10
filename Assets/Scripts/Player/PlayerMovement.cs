@@ -102,7 +102,7 @@ public class PlayerMovement : MonoBehaviour
         {
             //Entered Grounded state
             case MoveState.Grounded:
-                oneShotAudioHolder.PlayLandSound(currentInAirRelativeVelocityY/MaxFallSpeed);
+                oneShotAudioHolder.InitializeLandSound(currentInAirRelativeVelocityY/MaxFallSpeed);
                 break;
             //Entered Flying state
             case MoveState.Flying:
@@ -245,7 +245,7 @@ public class PlayerMovement : MonoBehaviour
 
             rb.AddForce(transform.up * jumpForce, ForceMode.Impulse);
 
-            oneShotAudioHolder.SetupFootstepSound(true); // should pass through wheter is local player but cant be fucked
+            oneShotAudioHolder.InitializeFootstepSound(); // should pass through wheter is local player but cant be fucked
         }
     }
     
@@ -257,7 +257,7 @@ public class PlayerMovement : MonoBehaviour
     {
         return transform.InverseTransformDirection(rb.velocity);
     }
-    private void SetRelativeVelocity(Vector3 newVelocity)
+    public void SetRelativeVelocity(Vector3 newVelocity)
     {
         rb.velocity = transform.TransformDirection(newVelocity);
     }
@@ -326,7 +326,7 @@ public class PlayerMovement : MonoBehaviour
         // Interpolation is complete.
         newSurfaceNormal = surfaceNormal;
         isRotating = true;
-        oneShotAudioHolder.PlayRotationSound();
+        oneShotAudioHolder.InitializeRotationSound();
 
     }
     void LerpToNewRotation()

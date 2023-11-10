@@ -17,7 +17,6 @@ public class PlayerShooting : MonoBehaviour
     [Header("Gun Settings")]
     [SerializeField] float gunRange;
     [SerializeField] float maxRotateDistance;
-    [SerializeField] float maxGrappleDistance = 100f;
 
     [Header("Line Renderers")]
     [SerializeField] LineRenderer grappleLineRenderer;
@@ -70,7 +69,7 @@ public class PlayerShooting : MonoBehaviour
         {
             FireRaycast(camHolder.position, gunRange, 0f);
 
-            oneShotAudioHolder.SetupShootSound(playerLocalManager.IsFirstPlayerLocal);
+            oneShotAudioHolder.SetupShootSound();
 
             timeAtLastShot = Time.time;
         }

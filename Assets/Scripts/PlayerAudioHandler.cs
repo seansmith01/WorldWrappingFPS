@@ -51,7 +51,7 @@ public class PlayerAudioHandler : MonoBehaviour
                 windAudioSources.Add(newFreefallSound);
             }
 
-            playerFallingAudioSource.spatialBlend = 0.0f;
+            playerFallingAudioSource.spatialBlend = 1.0f;
             currentMinFallingWindVolume = playerMinFallingWindVolume;
             currentMaxFallingWindVolume = playerMaxFallingWindVolume;
         }
@@ -269,14 +269,14 @@ public class PlayerAudioHandler : MonoBehaviour
     void InAirSounds(float relVelocityY)
     {
         float fallVolumeRatio = Mathf.Lerp(currentMinFallingWindVolume, currentMaxFallingWindVolume, relVelocityY / playerMovement.MaxFallSpeed);
+        //print(fallVolumeRatio);
         float newVolume = Mathf.Lerp(playerFallingAudioSource.volume, fallVolumeRatio, playerFallVolumeLerpSpeed * Time.deltaTime);
-        playerFallingAudioSource.volume = newVolume;
-
         if (duplicateManager == null)
         {
             Debug.LogWarning("duplicate manager not found");
             return;
         }
+        playerFallingAudioSource.volume = newVolume;
         for (int i = 0; i < duplicateManager.DuplicateControllers.Count; i++)
         {
             duplicateManager.DuplicateControllers[i].FallingAudioSource.volume = newVolume;
@@ -291,7 +291,7 @@ public class PlayerAudioHandler : MonoBehaviour
             // Check if enough time has passed to play the next footstep sound
             if (Time.time - timeSinceLastFootstep >= Random.Range(minTimeBetweenFootsteps, maxTimeBetweenFootsteps))
             {
-                oneShotAudioHolder.SetupFootstepSound(playerLocalManager.IsFirstPlayerLocal);
+                oneShotAudioHolder.InitializeFootstepSound();
                 
 
                 timeSinceLastFootstep = Time.time; // Update the time since the last footstep sound

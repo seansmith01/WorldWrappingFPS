@@ -65,10 +65,8 @@ MonoBehaviour:
   - {fileID: 8300000, guid: 73a0a6eaa42504a4ca2a4ca0753ae7b8, type: 3}
   - {fileID: 8300000, guid: 5ae8c34b8c601b44a8f2a7ed00e27fb3, type: 3}
   - {fileID: 8300000, guid: def0892090f9926459cee2a9b81cad63, type: 3}
-  localMinFootstepVolume: 0.3
-  localMaxFootstepVolume: 0.6
-  nonlocalMinFootstepVolume: 1
-  nonlocalMaxFootstepVolume: 1
+  minFootstepVolume: 0.3
+  maxFootstepVolume: 0.6
   landClip: {fileID: 8300000, guid: 81c468c863338b64fa68dd40f6ac5e95, type: 3}
   rotationAudioSource: {fileID: 8745100551584424327}
   rotationClips:
@@ -449,7 +447,7 @@ AudioSource:
   Priority: 128
   DopplerLevel: 0
   MinDistance: 1
-  MaxDistance: 40
+  MaxDistance: 100
   Pan2D: 0
   rolloffMode: 2
   BypassEffects: 0
