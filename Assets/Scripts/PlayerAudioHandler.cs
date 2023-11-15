@@ -12,7 +12,7 @@ public class PlayerAudioHandler : MonoBehaviour
     [SerializeField] private OneShotAudioHolder oneShotAudioHolder;
     [SerializeField] LayerMask mask;
     [Header("CollidersFallingAudio")]
-    List<AudioSource> windAudioSources = new List<AudioSource>();
+    List<AudioSource> collisionWindAudioSources = new List<AudioSource>();
     [SerializeField] AudioSource colliderFreeFallAudioSource;
     [SerializeField] float radius;
     [SerializeField] int maxCollidersToListenTo;
@@ -28,13 +28,10 @@ public class PlayerAudioHandler : MonoBehaviour
     [SerializeField] private float otherPlayerMinFallingWindVolume;
     [SerializeField] private float otherPlayerMaxFallingWindVolume;
     [SerializeField] private float playerFallVolumeLerpSpeed = 2f;
-    private float currentMinFallingWindVolume;
-    private float currentMaxFallingWindVolume;
     [Header("Footsteps")]
     [SerializeField] private float minTimeBetweenFootsteps = 0.3f;
     [SerializeField] private float maxTimeBetweenFootsteps = 0.6f;
     private float timeSinceLastFootstep;
-    private float timeSinceLastLand;
     private void Start()
     {
         playerMovement = GetComponent<PlayerMovement>();
@@ -48,19 +45,14 @@ public class PlayerAudioHandler : MonoBehaviour
             {
                 AudioSource newFreefallSound = Instantiate(colliderFreeFallAudioSource, pool.transform);
                 //newFreefallSound.gameObject.SetActive(false);
-                windAudioSources.Add(newFreefallSound);
+                collisionWindAudioSources.Add(newFreefallSound);
             }
 
             playerFallingAudioSource.spatialBlend = 1.0f;
-            currentMinFallingWindVolume = playerMinFallingWindVolume;
-            currentMaxFallingWindVolume = playerMaxFallingWindVolume;
         }
         else
         {
             playerFallingAudioSource.spatialBlend = 1.0f;
-            //audioSource.enabled = false;
-            currentMinFallingWindVolume = otherPlayerMinFallingWindVolume;
-            currentMaxFallingWindVolume = otherPlayerMaxFallingWindVolume;
         }
 
     }
@@ -72,203 +64,132 @@ public class PlayerAudioHandler : MonoBehaviour
     {
         Vector3 playerRelativeVelocity = playerMovement.GetRelativeVelocity();
 
+        // Handle audio for all players
         if (playerMovement.IsGrounded)
         {
             FootstepSounds();
-            playerFallingAudioSource.volume = 0f;
 
         }
-        InAirSounds(playerRelativeVelocity.y);
+        ManageFallingSounds(playerRelativeVelocity.y);
 
-        
 
         if (!playerLocalManager.IsFirstPlayerLocal)
         {
             return;
         }
+        // Handle audio only for player 1
 
-        //Code from here only applies to the first player in splitscreeen
-
-        if (Input.GetKeyUp(KeyCode.K))
-        {
-            if(Time.timeScale == 0)
-            {
-                Time.timeScale = 1;
-
-            }
-            else
-            {
-                Time.timeScale = 0;
-            }
-            //transform.position = new Vector3(9, 17, 30);
-            GetComponent<Rigidbody>().velocity = Vector3.zero;
-        }
-        
-
+        // Mute all the colliders auido source, will unmute if sphere collider registers and assigns them
+        MuteColliderWindSources();
+        // Return if grounded
         if (playerMovement.IsGrounded)
         {
-            MuteWindSources();
             return;
-
         }
-            MuteWindSources();
-        //NOT GROUNDED
-        #region MultipleRaycastMethod
-        //GetClosestPointOnColliders();
-        //if(closestPoints.Count == 0)
-        //{
-        //    return;
-        //}
-        //for (int i = 0; i < closestPoints.Count; i++)
-        //{
-        //    if (i == windAudioSources.Count)
-        //        break;
-        //    windAudioSources[i].gameObject.SetActive(true);
-        //    float windVolumeRatio = Mathf.Lerp(0, 1f, playerRelativeVelocity.y / playerMovement.MaxFallSpeed);
-        //    windAudioSources[i].volume = windVolumeRatio;
-        //    windAudioSources[i].transform.position = closestPoints[i];
-        //    Debug.DrawLine(transform.position, closestPoints[i], Color.red);
-        //}
-        //return;
-        #endregion
-        //Sphere overlap method
 
+        HandleNearbyCollidersWindAudio(playerRelativeVelocity);
+    }
+
+    private void HandleNearbyCollidersWindAudio(Vector3 playerRelativeVelocity)
+    {
+        // Cast an overlap sphere over objects in the world static mask
         Collider[] overLappingColliders = Physics.OverlapSphere(transform.position, radius, worldStaticMask);
+        // If no colliders are in the sphere, return
         if (overLappingColliders.Length == 0)
         {
             return;
         }
+        // The the list of closest points on the colliders
         closestPointsOnColliders.Clear();
+        // Cycle through each collider in the sphere cast
         for (int i = 0; i < overLappingColliders.Length; i++)
         {
-            closestPointsOnColliders.Add(overLappingColliders[i].ClosestPoint(transform.position));
+            // Get the closest point on the collider relative to the player
+            Vector3 closestPointOnCollider = overLappingColliders[i].ClosestPoint(transform.position);
+            // Add the closest point to the list of vectors
+            closestPointsOnColliders.Add(closestPointOnCollider);
         }
+        // The program will now move the instantiated audio sources to the position of these closest point vectors
+        // But first, it will scale their volumes based on a series of varibles
+        // These variables will be scaled to be between 0 and 1 and all multiplied together to get the final volume for the audio source
+        // * How far the player is away from the ground (0 when the player is closest to ground, 1 when equal or further than set value e.g 15 units)
+        // * How fast the player is falling (0 when not falling, 1 when falling at max speed)
+        // * How far the player is away from the collider (0 when distance is equal to radius of sphere (furthest away), 1 when at closest possible distance)
+        // * How far the player vertical Y position is from the collider's 
+        //   (0 when the player's Y position is as far as it can be from the collider's, 1 when player's Y position is equal to the closest point's Y position)
+
+
+        // Set a float to be between 0 and 1 depending on how close player is to ground
         float downwardsRayRange = 15f;
-        float distToGroundRatio = 1f; // set to one so if in air and ray below is hitting nothing, the windsources shuld play full volume
+        float distToGroundRatio;
+
         RaycastHit downwardsHit;
-        
-        if(Physics.Raycast(transform.position, -transform.up, out downwardsHit, downwardsRayRange, worldStaticMask))
+        // Cast a ray in the player's local down direction
+        if (Physics.Raycast(transform.position, -transform.up, out downwardsHit, downwardsRayRange, worldStaticMask))
         {
+            // If the ray hits, set the ratio value to be between 0 and 1 depending on the ray's distance divided by its max potential distance
             distToGroundRatio = Mathf.Lerp(0, 1, downwardsHit.distance / downwardsRayRange);
-
-            //distToGroundMultiplier = Mathf.Lerp(distToGroundMultiplier, distToGroundRatio, 150f * Time.deltaTime);
         }
-
+        else
+        {
+            //If the ray misses, the player is high in the air therefore the audio sources on the colliders should play full volume
+            distToGroundRatio = 1f;
+        }
+        // Set a float to be between 0 and 1 depening on the players current falling speed divided by their potential max speed
+        // If they are falling at max speed, this value will be 1
         float playerYVelocityRatio = Mathf.Lerp(0, 1f, playerRelativeVelocity.y / playerMovement.MaxFallSpeed);
         float targetVolume = playerYVelocityRatio * distToGroundRatio;
-        //print(targetVolume);
-        //sort the colliders based on the distance from their closest point to the players position!!!!!!!!!!!!!!
-        closestPointsOnColliders.Sort((a, b) => (a - transform.position).magnitude.CompareTo((b - transform.position).magnitude));
+        //sort the colliders based on the distance from their closest point to the players position
+        //closestPointsOnColliders.Sort((a, b) => (a - transform.position).magnitude.CompareTo((b - transform.position).magnitude));
+
         // Update the list of closest hits
         for (int i = 0; i < closestPointsOnColliders.Count; i++)
         {
-            
+
             Vector3 closestPosOnCollider = closestPointsOnColliders[i];
-            if (i == windAudioSources.Count)
+            if (i == collisionWindAudioSources.Count)
                 break;
-            //if (!isWithinHeightRange(closestPosOnCollider))
-            //{
-            //    break;
-            //}
-            windAudioSources[i].gameObject.SetActive(true);
+            // Get the difference in the Y positions between the player and the closest point relative to the player's rotation
             float relativeYDifference = transform.InverseTransformPoint(transform.position).y - transform.InverseTransformPoint(closestPosOnCollider).y;
+            // Set a float to be between 1 and 0 depending on the relative Y difference divided by the radius (the max possible difference)
+            float relativeYDifferenceRatio = Mathf.Lerp(1f, 0f, Mathf.Abs(relativeYDifference) / radius);
 
-            float relativeYDifferenceRatio = Mathf.Lerp(1f, 0f, Mathf.Abs(relativeYDifference) / (radius));
-
+            // Set a float to be between 0 and 1 depening on the distance between the player and the closest point
             float distanceFromPlayer = Vector3.Distance(transform.position, closestPosOnCollider);
             float distanceRatio = Mathf.Lerp(1f, 0f, distanceFromPlayer / radius);
-            windAudioSources[i].GetComponent<test>().distanceFromPlayerY = relativeYDifference;
-            windAudioSources[i].GetComponent<test>().RelativeYDifferenceRatio = relativeYDifferenceRatio;
-            windAudioSources[i].GetComponent<test>().distanceRatio = distanceRatio;
 
+
+            //collisionWindAudioSources[i].GetComponent<test>().distanceFromPlayerY = relativeYDifference;
+            //collisionWindAudioSources[i].GetComponent<test>().RelativeYDifferenceRatio = relativeYDifferenceRatio;
+            //collisionWindAudioSources[i].GetComponent<test>().distanceRatio = distanceRatio;
+
+            // Set the audio source target volume to be all the ratio's multiplied together
             float newTargetVolume = targetVolume * relativeYDifferenceRatio * distanceRatio;
-            if (windAudioSources[i].GetComponent<test>().debug)
-            {
+            //collisionWindAudioSources[i].GetComponent<test>().targetVol = newTargetVolume;
 
-            }
-            windAudioSources[i].GetComponent<test>().targetVol = newTargetVolume;
+            // Lerp the volume so there's not any major sudden changes in audio volumes. mainly for when walking off a platform, audio can go up too quick
+            collisionWindAudioSources[i].volume = Mathf.Lerp(collisionWindAudioSources[i].volume, newTargetVolume, 100f * Time.deltaTime);
+            // Set the position of the audio source to be the closest point
+            collisionWindAudioSources[i].transform.position = closestPosOnCollider;
+            //collisionWindAudioSources[i].pitch= 1;
 
-            windAudioSources[i].volume =  Mathf.Lerp(windAudioSources[i].volume, newTargetVolume, 100f * Time.deltaTime);
-            //windAudioSources[i].volume = newTargetVolume;
 
-            windAudioSources[i].transform.position = closestPosOnCollider;
-            //Get the distance between the  co-oridinates of  the player and the closest point on the collider that the audio source is attached to
-            
-
-            
             Debug.DrawLine(transform.position, closestPosOnCollider, Color.red);
             //colliders.Add(overLappingColliders[i]);
         }
-        
-
-        //int numClosestHits = Mathf.Min(maxCollidersToListenTo, colliders.Count);
-
-        // Access the closest colliders if needed.
-        //for (int i = 0; i < numClosestHits; i++)
-        //{
-        //    Vector3 closestPosOnCollider = colliders[i].ClosestPoint(transform.position);
-        //    //unmute wind source since it's in use
-        //   // windAudioSources[i].mute = false;
-        //    windAudioSources[i].transform.position = closestPosOnCollider;
-
-        //}
-
-
-        //audioSource.pitch = Mathf.Lerp(0.5f, 1, veryclosestPoint / radius);
-
     }
-    bool isWithinHeightRange(Vector3 closestPoint)
-    {
-        // Calculate the relative direction
-        Vector3 relativeDir = closestPoint - transform.position;
 
-        // Transform the relative direction into the player's local space
-        Vector3 localRelativeDir = transform.InverseTransformPoint(relativeDir);
-
-        // Check if the absolute Y component is within the vertical range
-        if (Mathf.Abs(localRelativeDir.y) <= 5f)
-        {
-            return true;
-        }
-        return false;
-    }
-    void GetClosestPointOnColliders()
-    {
-        closestPoints.Clear();
-        int rayCount = 8; // Number of rays in the 360-degree arc
-        // Calculate the angle between each ray
-        float angleStep = 360f / rayCount;
-        //Raycast method
-        for (int i = 0; i < rayCount; i++)
-        {
-            // Calculate the angle for the current ray
-            float angle = i * angleStep;
-
-            // Convert the angle to a direction vector
-            Vector3 rayDirection = Quaternion.Euler(0, angle, 0) * transform.forward;
-
-            // Perform the raycast
-            RaycastHit hit;
-            Debug.DrawRay(transform.position, rayDirection * radius, Color.green);
-            if (Physics.Raycast(transform.position, rayDirection, out hit, radius, worldStaticMask))
-            {
-                Vector3 closestPosOnCollider = hit.collider.ClosestPoint(transform.position);
-                closestPoints.Add(closestPosOnCollider);
-            }
-        }
-    }
-    private void MuteWindSources()
+    private void MuteColliderWindSources()
     {
         for (int i = 0; i < maxCollidersToListenTo; i++)
         {
-            windAudioSources[i].volume = 0f;
-            //windAudioSources[i].gameObject.SetActive(false);
+            collisionWindAudioSources[i].volume = 0f;
         }
     }
 
-    void InAirSounds(float relVelocityY)
+    void ManageFallingSounds(float relVelocityY)
     {
-        float fallVolumeRatio = Mathf.Lerp(currentMinFallingWindVolume, currentMaxFallingWindVolume, relVelocityY / playerMovement.MaxFallSpeed);
+        float fallVolumeRatio = Mathf.Lerp(0, 0.3f, relVelocityY / playerMovement.MaxFallSpeed);
         //print(fallVolumeRatio);
         float newVolume = Mathf.Lerp(playerFallingAudioSource.volume, fallVolumeRatio, playerFallVolumeLerpSpeed * Time.deltaTime);
         if (duplicateManager == null)
