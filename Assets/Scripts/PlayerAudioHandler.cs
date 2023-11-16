@@ -173,7 +173,7 @@ public class PlayerAudioHandler : MonoBehaviour
             collisionWindAudioSources[i].transform.position = closestPosOnCollider;
             //collisionWindAudioSources[i].pitch= 1;
 
-
+            collisionWindAudioSources[i].pitch = Mathf.Lerp(0.9f, 0.5f, relativeYDifferenceRatio);
             Debug.DrawLine(transform.position, closestPosOnCollider, Color.red);
             //colliders.Add(overLappingColliders[i]);
         }
