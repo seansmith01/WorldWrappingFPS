@@ -7,6 +7,7 @@ using TMPro;
 public class GameManager : MonoBehaviour
 {
     public int CurrentPlayerCount;
+    [SerializeField] AudioSource music;
     void Update()
     {
         if (Input.GetKeyDown(KeyCode.L))
@@ -15,6 +16,10 @@ public class GameManager : MonoBehaviour
             {
                 ps.gameObject.SetActive(true);
             }
+        }
+        if (Input.GetKeyDown(KeyCode.M))
+        {
+            music.enabled = !music.enabled;
         }
     }
 }
