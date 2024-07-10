@@ -13,7 +13,6 @@ public class BulletProjectileScript : MonoBehaviour
     {
         levelRepeater = FindFirstObjectByType<LevelRepeater>();
 
-        
         //Destroy(gameObject, timeTillDestory);
         float repeatSpacing = levelRepeater.RepeatSpacing.x; //temp
         //float repeatAmount = levelRepeater.repeatAmount - 1; // one less of the worl repeats
