@@ -24,12 +24,14 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] float maxAirForwardSpeed;
     [SerializeField] float airStrafeForce;
     [SerializeField] float maxAirStrafeSpeed;
+    float currentInAirRelativeVelocityY;
+
     [Header("DownForce")]
     [SerializeField] float apexYVelocity;
     [SerializeField] float downForceBeforeApex;
     [SerializeField] float downForceAfterApex;
     [SerializeField] float downForceWhenRotating;
-    [SerializeField] float maxFallSpeed;
+    public float MaxFallSpeed;
     [SerializeField] float airMultiplier;
 
 
@@ -45,10 +47,6 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] Text strafeText; 
     bool readyToJump = true;
 
-    [Header("WallRunning")]
-    [SerializeField] float wallRunForwardForce;
-    [SerializeField] float wallRunDownForceSmall;
-    [SerializeField] float wallRunDownForceBig;
 
     bool isRotating;
 
@@ -58,63 +56,84 @@ public class PlayerMovement : MonoBehaviour
     PlayerDuplicateManager duplicateManager;
     LevelRepeater levelRepeater;    
     Rigidbody rb;
+    OneShotAudioHolder oneShotAudioHolder;
+
     public enum MoveState
     {
         Grounded,
-        Flying,
-        WallRunning
+        Flying
     }
     public MoveState CurrentMoveState;
+    public bool IsGrounded { get; private set; }
     private void Awake()
     {
         rb = GetComponent<Rigidbody>();
         playerShooting = GetComponent<PlayerShooting>();
         duplicateManager = GetComponent<PlayerDuplicateManager>();
         playerInput = GetComponent<PlayerInput>();
+        oneShotAudioHolder = GetComponentInChildren<OneShotAudioHolder>();
         levelRepeater = FindFirstObjectByType<LevelRepeater>();
     }
     private void Start()
     {
-        playerNumber = GetComponent<PlayerLocalManager>().PlayerNumber;
+        playerNumber = GetComponent<PlayerLocalManager>().PlayerID;
     }
-    MoveState previousMoveState;
-    private void GetMovementState()
+    private MoveState GetMovementState()
     {
         // If on ground
-        if (IsGrounded())
+        if (isGrounded())
         {
-            CurrentMoveState = MoveState.Grounded;
-            return; // return so can't wallrun when grounded
+            IsGrounded = true;
+
+            return MoveState.Grounded;
         }
-        // Not Grounded
-        // If Wallruning
-        if (IsWallRunningLeft() || IsWallRunningRight())
+        else
         {
-            //CurrentMoveState = MoveState.WallRunning;
-            //return;
+            // Not Grounded
+            IsGrounded = false;
+            return MoveState.Flying;
         }
-        // Not Wallrunning
-        CurrentMoveState = MoveState.Flying;
+        
+    }
+    private void EnterState(MoveState newState)
+    {
+        CurrentMoveState = newState;
+        switch (newState)
+        {
+            //Entered Grounded state
+            case MoveState.Grounded:
+                oneShotAudioHolder.InitializeLandSound(currentInAirRelativeVelocityY/MaxFallSpeed);
+                break;
+            //Entered Flying state
+            case MoveState.Flying:
+                break;
+        }
     }
     void FixedUpdate()
     {
-        GetMovementState();
-
-        switch (CurrentMoveState)
+        //Find current move state
+        MoveState newState = GetMovementState();
+        if(CurrentMoveState == newState) // If current move state is equal to new state found, update that move state
         {
-            case MoveState.Grounded:
-                GroundedMovement();
-                LimitGroundSpeed();
-                break;
-            case MoveState.WallRunning:
-                WallRunningMovement();
-                break;
-            case MoveState.Flying:
-                FlyingMovement();
-                LimitAirSpeed();
-                break;
+            switch (CurrentMoveState)
+            {
+                case MoveState.Grounded:
+                    GroundedMovement();
+                    LimitGroundSpeed();
+                    break;
+                case MoveState.Flying:
+                    FlyingMovement();
+                    LimitAirSpeed();
+                    currentInAirRelativeVelocityY = GetRelativeVelocity().y;
+                    break;
+            }
         }
-        previousMoveState = CurrentMoveState;
+        else // Else current move state needs to be switched
+        {
+            EnterState(newState);
+        }
+
+       
 
         if(isRotating)
         {
@@ -140,7 +159,7 @@ public class PlayerMovement : MonoBehaviour
     void JumpCheck()
     {
         // Coyote time
-        if (IsGrounded() || IsWallRunning())
+        if (isGrounded())
         {
             coyoteTimer = 0;
         }
@@ -164,10 +183,6 @@ public class PlayerMovement : MonoBehaviour
         }
     }
     
-    private void ResetRelativeYVelocity()
-    {
-        SetRelativeVelocity(new Vector3(GetRelativeVelocity().x, 0, GetRelativeVelocity().z));
-    }
     [SerializeField] float groundDrag;
     void GroundedMovement()
     {
@@ -193,7 +208,6 @@ public class PlayerMovement : MonoBehaviour
     void FlyingMovement()
     {
         rb.drag = 0;
-
         Vector3 inputDirection = InputDirection();
 
         // Calculate the forces
@@ -219,20 +233,6 @@ public class PlayerMovement : MonoBehaviour
             return -downForceAfterApex;
         }
     }
-    void WallRunningMovement()
-    {
-        if(GetRelativeVelocity().y > 0)
-        {
-            //SetRelativeVelocity(new Vector3(GetRelativeVelocity().x, GetRelativeVelocity().y * 0.5f, GetRelativeVelocity().z));
-        }
-        else
-        {
-            //SetRelativeVelocity(new Vector3(GetRelativeVelocity().x, wallRunDownForceBig, GetRelativeVelocity().z));
-        }
-        rb.drag = 0;
-        Vector3 airborneMoveDirection = transform.forward * (InputDirection().z * wallRunForwardForce);
-        rb.AddForce(airborneMoveDirection, ForceMode.Force);
-    }
     void Jump()
     {
         //Grounded or just left ground
@@ -240,17 +240,12 @@ public class PlayerMovement : MonoBehaviour
             readyToJump = false;
             Invoke(nameof(ResetJump), jumpCooldown);
 
-            ResetRelativeYVelocity();
-            rb.AddForce(transform.up * jumpForce, ForceMode.Impulse);
-        }
-        if (CurrentMoveState == MoveState.WallRunning && readyToJump)
-        { 
-            //can jump set in cooroutine
-            readyToJump = false;
-            Invoke(nameof(ResetJump), jumpCooldown);
+            //rb.velocity = Vector3.zero;
+            SetRelativeVelocity(new Vector3(GetRelativeVelocity().x, 0, GetRelativeVelocity().z));
 
-            ResetRelativeYVelocity();
             rb.AddForce(transform.up * jumpForce, ForceMode.Impulse);
+
+            oneShotAudioHolder.InitializeFootstepSound(); // should pass through wheter is local player but cant be fucked
         }
     }
     
@@ -258,36 +253,37 @@ public class PlayerMovement : MonoBehaviour
     {
         readyToJump = true;
     }
-    Vector3 GetRelativeVelocity()
+    public Vector3 GetRelativeVelocity()
     {
         return transform.InverseTransformDirection(rb.velocity);
     }
-    private void SetRelativeVelocity(Vector3 newVelocity)
+    public void SetRelativeVelocity(Vector3 newVelocity)
     {
         rb.velocity = transform.TransformDirection(newVelocity);
     }
     void LimitAirSpeed()
     {
+        Vector3 relativeVelocity = GetRelativeVelocity();
         // X
-        if (GetRelativeVelocity().x > maxAirStrafeSpeed)
+        if (relativeVelocity.x > maxAirStrafeSpeed)
         {
             SetRelativeVelocity(new Vector3(maxAirStrafeSpeed, GetRelativeVelocity().y, GetRelativeVelocity().z));
         }
-        if (GetRelativeVelocity().x < -maxAirStrafeSpeed)
+        if (relativeVelocity.x < -maxAirStrafeSpeed)
         {
             SetRelativeVelocity(new Vector3(-maxAirStrafeSpeed, GetRelativeVelocity().y, GetRelativeVelocity().z));
         }
         // Y
-        if (GetRelativeVelocity().y < maxFallSpeed)
+        if (relativeVelocity.y < MaxFallSpeed)
         {
-            SetRelativeVelocity(new Vector3(GetRelativeVelocity().x, maxFallSpeed, GetRelativeVelocity().z));
+            SetRelativeVelocity(new Vector3(GetRelativeVelocity().x, MaxFallSpeed, GetRelativeVelocity().z));
         }
         // Z
-        if (GetRelativeVelocity().z > maxAirForwardSpeed)
+        if (relativeVelocity.z > maxAirForwardSpeed)
         {
             SetRelativeVelocity(new Vector3(GetRelativeVelocity().x, GetRelativeVelocity().y, maxAirForwardSpeed));
         }
-        if (GetRelativeVelocity().z < -maxAirForwardSpeed)
+        if (relativeVelocity.z < -maxAirForwardSpeed)
         {
             SetRelativeVelocity(new Vector3(GetRelativeVelocity().x, GetRelativeVelocity().y, -maxAirForwardSpeed));
         }
@@ -330,6 +326,7 @@ public class PlayerMovement : MonoBehaviour
         // Interpolation is complete.
         newSurfaceNormal = surfaceNormal;
         isRotating = true;
+        oneShotAudioHolder.InitializeRotationSound();
 
     }
     void LerpToNewRotation()
@@ -360,34 +357,35 @@ public class PlayerMovement : MonoBehaviour
     
     void WrapCheck()
     {
-        float boundsMax = levelRepeater.repeatSpacing / 2f;
-        if (transform.position.x > boundsMax)
+        float boundsMaxX = levelRepeater.RepeatSpacing.x / 2f;
+        float boundsMaxY = levelRepeater.RepeatSpacing.y / 2f;
+        float boundsMaxZ = levelRepeater.RepeatSpacing.z / 2f;
+        if (transform.position.x > boundsMaxX)
         {
-            WrapTo(new Vector3(-boundsMax, transform.position.y, transform.position.z));
+            WrapTo(new Vector3(-boundsMaxX, transform.position.y, transform.position.z));
         }
-        if (transform.position.x < -boundsMax)
+        if (transform.position.x < -boundsMaxX)
         {
-            WrapTo(new Vector3(boundsMax, transform.position.y, transform.position.z));
-        }
-
-        if (transform.position.z > boundsMax)
-        {
-            WrapTo(new Vector3(transform.position.x, transform.position.y, -boundsMax));
-        }
-        if (transform.position.z < -boundsMax)
-        {
-            WrapTo(new Vector3(transform.position.x, transform.position.y, boundsMax));
+            WrapTo(new Vector3(boundsMaxX, transform.position.y, transform.position.z));
         }
 
-        if (transform.position.y > boundsMax)
+        if (transform.position.y > boundsMaxY)
         {
-            WrapTo(new Vector3(transform.position.x, -boundsMax, transform.position.z));
+            WrapTo(new Vector3(transform.position.x, -boundsMaxY, transform.position.z));
         }
-        if (transform.position.y < -boundsMax)
+        if (transform.position.y < -boundsMaxY)
         {
-            WrapTo(new Vector3(transform.position.x, boundsMax, transform.position.z));
+            WrapTo(new Vector3(transform.position.x, boundsMaxY, transform.position.z));
         }
 
+        if (transform.position.z > boundsMaxZ)
+        {
+            WrapTo(new Vector3(transform.position.x, transform.position.y, -boundsMaxZ));
+        }
+        if (transform.position.z < -boundsMaxZ)
+        {
+            WrapTo(new Vector3(transform.position.x, transform.position.y, boundsMaxZ));
+        }
     }
     // move dups first test
     
@@ -405,10 +403,10 @@ public class PlayerMovement : MonoBehaviour
         // move players grappling hook
         PlayerShooting playerShooting = GetComponentInChildren<PlayerShooting>();
 
-        if (playerShooting.IsGrappling())
-            playerShooting.SetGrapplingPoint(playerShooting.GetGrapplePoint() + diff);
+        //if (playerShooting.IsGrappling())
+        //    playerShooting.SetGrapplingPoint(playerShooting.GetGrapplePoint() + diff);
     }
-    bool IsGrounded()
+    private bool isGrounded()
     {
         RaycastHit hit;
         Debug.DrawRay(transform.position, -transform.up * distToGround);
@@ -424,49 +422,7 @@ public class PlayerMovement : MonoBehaviour
             }
         }
         else
-            return false;
-    }
-    bool IsWallRunning()
-    {
-        if (IsWallRunningLeft() || IsWallRunningRight())
-        {
-            return true;
-        }
-        return false;
-    }
-    bool IsWallRunningLeft()
-    {
-        RaycastHit hit;
-        if (Physics.Raycast(transform.position, -transform.right, out hit, distToWallRun))
-        {
-            if (hit.collider.isTrigger)
-            {
-                return false;
-            }
-            else
-            {
-                return true;
-            }
-        }            
-        else
-            return false;
-    }
-    bool IsWallRunningRight()
-    {
-        RaycastHit hit;
-        if (Physics.Raycast(transform.position, transform.right, out hit, distToWallRun))
-        {
-            if (hit.collider.isTrigger)
-            {
-                return false;
-            }
-            else
-            {
-                return true;
-            }
-        }
-        else
-            return false;
+            return false;    
     }
 }
 //#region Collisions
